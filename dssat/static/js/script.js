@@ -4,56 +4,28 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+
+function load_charts(admin1){
+         window.location.href=window.location.protocol+'//'+window.location.host+'/charts/'+admin1+'/';
+
 }
-function ajax_call(ajax_url, ajax_data) {
-    //update database
-    console.log(ajax_data);
-    return $.ajax({
-        type: "POST",
-        headers: {'X-CSRFToken': getCookie('csrftoken')},
-        url: ajax_url.replace(/\/?$/, '/'),
-        dataType: "json",
-        data: ajax_data
-    })
-        .fail(function (xhr, status, error) {
-        });
-}
+
+
+
 function whenClicked(e) {
-   var admin1= e.target.feature.properties.ADM1_EN;
-   adm1=admin1;
-   document.getElementById('adm1').innerHTML=admin1;
-   chart.setTitle({text:'Observed and Simulated Yield for the baseline scenario in '+admin1});
-   // window.location.hash = "#testing";
+        var admin1 = e.target.feature.properties.admin1;
+        admin1="'"+admin1+"'";
+    var popup = L.popup();
+    popup.setLatLng(e.latlng)
+         .setContent('<b>Selected Admin Region: </b>'
+             + admin1
+             +'<br><br>Clicking on the following button will show the baseline charts and allow you to work with yield, anomaly and stress charts.'
+             + '<br><br><center><button id="charts" class="btn btn-secondary" onclick="load_charts('+admin1+')">Load charts</button>')
+        .openOn(map);
 
-      $('html,body').animate({
-        scrollTop: $("#testing").offset().top},
-        'slow');
- const xhr = ajax_call("run-spatial-dssat", {
-     'dbname':'dssatserv',
-        'schema':'kenya',
-     'admin1':admin1,
-     'plantingdate':'2021-03-15',
-     'cultivar':'Short',
-     'nitrogen':30.0
 
- });
-    xhr.done(function (result) {
-        console.log(result);
-    });
+
+
 }
 function onEachFeature(feature, layer) {
 
@@ -61,6 +33,7 @@ function onEachFeature(feature, layer) {
     layer.on({
         click: whenClicked
     });
+
 }
 var  country_layer = L.geoJSON(shp_obj, {
                 style: {
@@ -76,23 +49,3 @@ var  country_layer = L.geoJSON(shp_obj, {
 
             country_layer.addTo(map);
             map.fitBounds(country_layer.getBounds());
-
-    var chart = new Highcharts.Chart({
-
-    chart: {
-        renderTo: 'chart'
-    },
-
-    yAxis: {
-        labels: {
-            formatter: function() {
-                return this.value +' km';
-            }
-        }
-    },
-
-    series: [{
-        data: []
-    }]
-
-});

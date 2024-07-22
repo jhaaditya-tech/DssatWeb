@@ -309,7 +309,7 @@ class GSRun():
             for dap, rate in nitrogen:
                 self.gsx_str += \
                     "{0:-2} {1:<5} FE005   -99     5 {2:5.1f}   -99   -99   -99   -99   -99 -99\n".format(
-                        nitrogen_n, dap, rate
+                        nitrogen_n, float(dap), float(rate)
                     )
         self.gsx_str += "\n"
 
@@ -375,6 +375,7 @@ class GSRun():
         self._planting_build()
         self._fertilizer_build()
         self._options_build(sim_controls)
+        print("after this")
 
         write_control_file(self.RUN_PATH, self._crop_name)
         if len(self.soil_profile) > 0:
@@ -412,18 +413,21 @@ class GSRun():
                     os.remove(wthpath_to)
                 assert os.path.exists(wthpath_from)
                 os.symlink(wthpath_from, wthpath_to)
-
         with open(f"{self.RUN_PATH}/EXPEFILE.{CROP_CODES[self._crop_name]}X", 'w') as f:
             f.write(self.gsx_str)
 
         with open(f"{self.RUN_PATH}/DSSBatch.v48", 'w') as f:
             f.write(self.batch_str)
-
         exc_args = [f"{DSSAT_BIN}", 'S', "DSSBatch.v48"]
+        print(DSSAT_BIN)
+        print(self.RUN_PATH)
+        print(DSSAT_HOME)
+        print('after that')
         excinfo = subprocess.run(exc_args,
                                  cwd=self.RUN_PATH, capture_output=True, text=True,
                                  env={"DSSAT_HOME": DSSAT_HOME, BIN_NAME: DSSAT_BIN}
                                  )
+
         out = re.sub(r'(\n{2,})|(\n$)', "", excinfo.stdout)
         out = re.sub(r'((RUN).+\n.+(t/ha)\n)', "", out)
         out = re.sub(f'\n.+(Crop).+\n', "\n", out)
@@ -432,8 +436,8 @@ class GSRun():
             [line.split() for line in out.split("\n")],
             columns="RUN  CR  TRT FLO MAT TOPWT HARWT  RAIN  TIRR   CET  PESW  TNUP  TNLF   TSON TSOC".split()
         )
-        # with open(os.path.join(self.RUN_PATH, "OVERVIEW.OUT"),'w') as f:
-        #     self.overview = f.readlines()
+        with open(os.path.join("C:\\Users\\gtondapu", "OVERVIEW.OUT"),'r') as f:
+            self.overview = f.readlines()
         # with open(os.path.join(self.RUN_PATH, "Summary.OUT"),'w') as f:
         #     self.summary = f.readlines()
         # shutil.rmtree(self.RUN_PATH)

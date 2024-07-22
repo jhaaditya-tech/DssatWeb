@@ -15,12 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 
-from dssat.api import run_spatial_dssat
-from dssat.views import home
+from dssat.api import validation_chart,run_experiment,baseline
+from dssat.views import home, charts, about
 from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',home,name='home'),
-    path('run-spatial-dssat/',run_spatial_dssat,name='run-spatial-dssat'),
+    # path('run-spatial-dssat/',run_spatial_dssat,name='run-spatial-dssat'),
+    path('charts/<str:admin1>/',charts,name='charts'),
+    path('charts/validation-chart/<str:admin1>/',home,name='validation-chart'),
+    path('charts/<str:admin1>/baseline-chart/',baseline,name='baseline-chart'),
+    path('charts/<str:admin1>/run-experiment/',run_experiment,name='run-experiment'),
+    path('about/',about,name='about'),
 ]

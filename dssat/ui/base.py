@@ -6,7 +6,6 @@ import sys
 
 sys.path.append("..")
 from dssat.database import *
-from dssat.api import run_spatial_dssat
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
@@ -193,6 +192,8 @@ class Session:
             "PFRST": planting_window_start.strftime("%y%j"),
             "PLAST": planting_window_end.strftime("%y%j"),
         }
+        from dssat.api import run_spatial_dssat
+
         df, overview = run_spatial_dssat(
             dbname="",
             con=self.adminBase.connection,

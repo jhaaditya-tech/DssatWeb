@@ -6,3 +6,8 @@
 /DiegoCode.ipynb
 /dssat/.ipynb_checkpoints
 /dssat/__pycache__
+# Ignore compiled Python files
+*.pyc
+
+# Ignore static files directory
+static/

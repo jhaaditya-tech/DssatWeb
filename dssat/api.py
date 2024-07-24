@@ -261,88 +261,10 @@ def run_spatial_dssat(request, admin1):
     return out
     # return JsonResponse({'out': out})
 
-
-@csrf_exempt
-def validation_chart_home():
-    adminBase = 'Nakuru'
-    # adminBase=admin1
-    my_chart = Chart()
-    my_chart.container = 'chart'
-    my_chart.options = HighchartsOptions()
-    my_chart.options.title = {
-        'text': f'Observed and Simulated yield for the baseline scenario in {adminBase}',
-        "style": {
-            "font-size": "15px"
-        }
-    }
-    my_chart.options.y_axis = {
-        "title": {
-            'text': 'Yield (kg/ha)',
-            "style": {
-                "font-size": "15px"
-            }
-        },
-        "labels": {
-            "style": {
-                "font-size": "15px",
-            }
-        }
-    }
-    my_chart.options.x_axis = {
-        "title": {
-            'text': 'Year',
-            "style": {
-                "font-size": "15px",
-            }
-        },
-        "labels": {
-            "style": {
-                "font-size": "15px",
-            }
-        }
-    }
-    my_chart.options.tooltip = {
-        "header_format": '<span style="font-size: 12px; font-weight: bold">{point.key}</span><br/>',
-        "point_format": '<span style="color:{point.color};font-size: 12px">\u25CF </span>' + \
-                        '<span style="font-size: 12px">{series.name}</span><br/>'
-    }
-    my_chart.options.legend = Legend(
-        label_format='<span style="font-size: 12px">{name}</span><br/>'
-    )
-    con = db.connect('dssatserv')
-    schema = 'kenya'
-    admin1 = adminBase
-    baseline_data = db.fetch_baseline_run(con, schema, admin1)
-    baseline_run = baseline_data.loc[
-        baseline_data.year.isin(BASELINE_YEARS)
-    ]
-
-    baseline_stats = baseline_quantile_stats(baseline_run)
-    validation_run = baseline_data.dropna()
-    tmp_df = validation_run
-    for n, qrange in enumerate(Q_RANGE_PLOTS):
-        data = columnRange_data(tmp_df, qrange)
-        column = ColumnRangeSeries().from_array(data)
-        column.name = f"Simulated yield ({SERIES_CI[n]}% CI)"
-        column.color = COLORS[n]
-        column.grouping = False
-        column.border_width = 0.
-        my_chart.add_series(column)
-    # Observed scatterplot
-    data = tmp_df.groupby("year").obs.mean().round(3).reset_index().to_numpy()
-    scatter = ScatterSeries().from_array(data)
-    scatter.name = "Observed"
-    scatter.color = "#ff3300"
-    scatter.marker = {"symbol": "square", "radius": 6}
-
-    my_chart.add_series(scatter)
-    return my_chart
-
-
 @csrf_exempt
 def validation_chart(request, admin1):
     # admin1=request.POST.get('admin1')
-    adminBase = admin1
+    adminBase = admin1.split('_')[0]
     my_chart = Chart()
     tooltip = {
         "header_format": '<span style="font-size: 12px; font-weight: bold">{point.key}</span><br/>',
@@ -353,13 +275,12 @@ def validation_chart(request, admin1):
         label_format='<span style="font-size: 12px">{name}</span><br/>'
     )
     con = db.connect('dssatserv')
-    schema = 'kenya'
-    admin1 = adminBase
-    baseline_data = db.fetch_baseline_run(con, schema, admin1)
+    schema = admin1.split('_')[1]
+    baseline_data = db.fetch_baseline_run(con, schema, adminBase)
     baseline_run = baseline_data.loc[
         baseline_data.year.isin(BASELINE_YEARS)
     ]
-    pars = db.fetch_baseline_pars(con, schema, admin1)
+    pars = db.fetch_baseline_pars(con, schema, adminBase)
     baseline_pars = SimulationPars(
         nitrogen_dap=(5, 30, 60),
         nitrogen_rate=tuple([pars["nitrogen"] / 3] * 3),
@@ -369,7 +290,7 @@ def validation_chart(request, admin1):
     cultivar = baseline_pars.cultivar
     plantingdate = baseline_pars.planting_date
     nitro = sum(baseline_pars.nitrogen_rate)
-    tmp_df = db.fetch_cultivars(con, schema, admin1)
+    tmp_df = db.fetch_cultivars(con, schema, adminBase)
     tmp_df["yield_avg"] = (tmp_df.yield_avg / 1000).round(1)
     tmp_df = tmp_df.set_index(["yield_avg", "season_length"])
     cultivars = tmp_df.sort_index()

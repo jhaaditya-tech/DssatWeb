@@ -42,7 +42,9 @@ def home(request,admin1='Nakuru'):
                                            'data': data })
 
 
-def charts(request,admin1='Nakuru'):
+def charts(request,admin1='Nakuru_kenya'):
+    admin1_name=admin1.split('_')[0]
+    admin1_country= admin1.split('_')[1]
     column, scatter, desc, cultivars, x = validation_chart(request, admin1)
 
     column_chart = init_columnRange_chart()
@@ -54,7 +56,7 @@ def charts(request,admin1='Nakuru'):
     # gdf = gpd.read_file(config['PATH_TO_KENYA'])
     gdf = gpd.read_file(sFile)
     data = json.loads(json.dumps(gdf.to_json()))
-    return render(request, 'charts.html', {'admin1':admin1,'desc': desc, 'cultivars': cultivars,
+    return render(request, 'charts.html', {'admin1':admin1_name,'admin1_country':admin1_country,'desc': desc, 'cultivars': cultivars,
                                           'chart': column, 'data': data, 'column_chart': column_chart.to_js_literal(),
                                           'anomaly_chart': anomaly_chart.to_js_literal(),
                                           'stress_chart_water': stress_chart_water.to_js_literal(),

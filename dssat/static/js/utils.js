@@ -27,7 +27,7 @@ console.log(typeof(series.data))
       'cultivar':cultivar,
       'planting_date':planting_date,
       'dbname':'dssatserv',
-      'schema':'kenya',
+      'schema':admin1_country,
       'admin1':document.getElementById('adm1').innerText,
   }
 

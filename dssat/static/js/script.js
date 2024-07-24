@@ -14,13 +14,18 @@ function load_charts(admin1){
 
 function whenClicked(e) {
         var admin1 = e.target.feature.properties.admin1;
-        admin1="'"+admin1+"'";
+        var country = e.target.feature.properties.country;
+        console.log(e.target.feature.properties);
+            var str=[admin1,country.toLowerCase().toString()].join('_');
+    console.log(str)
+        str="'"+str+"'";
     var popup = L.popup();
+
     popup.setLatLng(e.latlng)
          .setContent('<b>Selected Admin Region: </b>'
              + admin1
              +'<br><br>Clicking on the following button will show the baseline charts and allow you to work with yield, anomaly and stress charts.'
-             + '<br><br><center><button id="charts" class="btn btn-secondary" onclick="load_charts('+admin1+')">Load charts</button>')
+             + '<br><br><center><button id="charts" class="btn btn-secondary" onclick="load_charts('+str+')">Load charts</button>')
         .openOn(map);
 
 

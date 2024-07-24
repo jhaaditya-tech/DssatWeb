@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 f = open(str(BASE_DIR) + '/data.json', )
 config = json.load(f)
 
+
 VARIABLES_ERA5_NC = {
     "tmax": "Temperature_Air_2m_Max_24h",
     "tmin": "Temperature_Air_2m_Min_24h",
@@ -32,7 +33,6 @@ VARIABLES_ERA5_NC = {
 TMP = tempfile.gettempdir()
 
 def connect(dbname):
-    # con = pg.connect(database=dbname)
     con = pg.connect(
         database=config['USERNAME'],
         user=config['DBUSER'],
@@ -74,6 +74,40 @@ def _create_reanalysis_table(dbname, schema, table):
     cur.execute(query)
     query = """
         CREATE INDEX {1}_rid ON {0}.{1} (rid);
+        """.format(schema, table)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_spatial ON {0}.{1} USING GIST (ST_Envelope(rast));
+        """.format(schema, table)
+    cur.execute(query)
+    con.commit()
+    cur.close()
+    con.close()
+    return
+
+def _create_climate_forecast_table(dbname, schema, table):
+    """Creates a climate forecast table"""
+    con = connect(dbname)
+    cur = con.cursor()
+    query = """
+        CREATE TABLE {0}.{1} (
+            rast raster NOT NULL, 
+            fdate date NOT NULL,
+            rid serial NOT NULL,
+            ens integer NOT NULL
+        );
+        """.format(schema, table)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_time ON {0}.{1} (fdate);
+        """.format(schema, table)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_rid ON {0}.{1} (rid);
+        """.format(schema, table)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_ens ON {0}.{1} (ens);
         """.format(schema, table)
     cur.execute(query)
     query = """
@@ -230,6 +264,35 @@ def _create_baseline_run_table(dbname, schema):
     con.close()
     return
 
+def _create_climatology_table(dbname, schema):
+    ds = "era5"
+    con = connect(dbname)
+    cur = con.cursor()
+    query = """
+        CREATE TABLE {0}.{1}_clim (
+            rast raster NOT NULL, 
+            rid serial NOT NULL,
+            variable character(32),
+            month integer
+        );
+        """.format(schema, ds)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_clim_var ON {0}.{1}_clim (variable);
+        """.format(schema, ds)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_clim_rid ON {0}.{1}_clim (rid);
+        """.format(schema, ds)
+    cur.execute(query)
+    query = """
+        CREATE INDEX {1}_clim_month ON {0}.{1}_clim (month);
+        """.format(schema, ds)
+    cur.execute(query)
+    con.commit()
+    cur.close()
+    con.close()
+
 
 def schema_exists(dbname, schema):
     """Check if schema exists in database."""
@@ -352,26 +415,28 @@ def get_envelope(dbname:str, schema:str, pad=0.1):
     bbox = [bbox[0]+pad, bbox[1]-pad, bbox[2]-pad, bbox[3]+pad]
     return bbox
 
-def delete_rasters(dbname, schema, table, date):
+def delete_rasters(dbname, schema, table, date=None, where=None):
     """If date already exists delete associated rasters before ingesting."""
     con = connect(dbname)
     cur = con.cursor()
+    if (where is None):
+        where = "fdate='{0}'".format(date.strftime('%Y-%m-%d'))
     query = """
         SELECT * FROM {0}.{1}
         WHERE
-            fdate='{2}'
-        """.format(schema, table, date.strftime('%Y-%m-%d'))
+            {2}
+        """.format(schema, table, where)
     cur.execute(query)
     if bool(cur.rowcount):
         # TODO: This has to go in a log
         warnings.warn("Overwriting raster in {0}.{1} table for {1}".format(
-            schema, table, date.strftime("%Y-%m-%d")
+            schema, table, query.replace('\n', " ")
         ))
         query = """
             DELETE FROM {0}.{1} 
             WHERE
-                fdate='{2}'
-            """.format(schema, table, date.strftime("%Y-%m-%d"))
+                {2}
+            """.format(schema, table, where)
         cur.execute(query)
         con.commit()
     cur.close()
@@ -456,7 +521,20 @@ def tiff_to_db(tiffpath:str, dbname:str, schema:str, table:str,
                 CREATE INDEX {0}_par ON {1} (par);
                 """.format(table, temptable)
             cur.execute(query)
-        # TODO: Add ens index when necessary
+        if ens is not None:
+            columns.append("ens")
+            query = """
+                ALTER TABLE {0} ADD COLUMN ens integer
+                """.format(temptable)
+            cur.execute(query)
+            query = """
+                UPDATE {0} SET ens = {1}
+                """.format(temptable, ens)
+            cur.execute(query)
+            query = """
+                CREATE INDEX {0}_ens ON {1} (ens);
+                """.format(table, temptable)
+            cur.execute(query)
         # Copy to permanent table
         query = """
             INSERT INTO {0}.{1}({2}) (SELECT {2} FROM {3});
@@ -519,6 +597,16 @@ def verify_series_continuity(con, schema:str, table:str,
     cur.close()
     return dates_notin_db
 
+def latest_date(con, schema:str, table:str):
+    """
+    Returns the latest available date in that table
+    """
+    cur = con.cursor()
+    query = f"SELECT max(fdate) FROM {schema}.{table};"
+    cur.execute(query)
+    dt = cur.fetchall()[0][0]
+    return datetime(dt.year, dt.month, dt.day)
+
 
 def get_era5_for_point(con, schema:str, lon:float, lat:float,
                        datefrom:datetime, dateto:datetime):
@@ -555,6 +643,56 @@ def get_era5_for_point(con, schema:str, lon:float, lat:float,
             AND fdate>=date '{4}' AND fdate<=date '{5}'
         """.format(schema, var, lon, lat, datefrom.strftime("%Y-%m-%d"),
                    dateto.strftime("%Y-%m-%d"))
+        cur.execute(query)
+        rows = np.array(cur.fetchall())
+        if len(rows) < 1:
+            warnings.warn(f"{var} data is NULL at location {lon}, {lat}")
+            continue
+        df[var] = Series(rows[:, 1], index=rows[:, 0])
+
+    cur.close()
+    if df.isna().any().any():
+        warnings.warn(f"Data is NULL at location {lon}, {lat}")
+        return
+    return df.sort_index()
+
+def get_nmme_for_point(con, schema:str, lon:float, lat:float,
+                       datefrom:datetime, dateto:datetime, ens:int):
+    """
+    Get the weather series for the requested point, ensemble and time period.
+    It returns a dict containing the series for each weather variable. It
+    returns a df with the time series for that point.
+    """
+    for var in VARIABLES_ERA5_NC.keys():
+        if var == "srad":
+            continue
+        table = f"nmme_{var}"
+        dates_notin_db = verify_series_continuity(
+            con, schema, table, datefrom, dateto
+        )
+        assert len(dates_notin_db) == 0, \
+            f"Dates are missing in {table}: {dates_notin_db}. Ingest that data first"
+
+    # Get rain data. This will also get the rid to make next queries using
+    # rid instead of spatial relations
+    variables = ["tmax", "tmin", "rain"]
+    var = variables[0]
+
+    cur = con.cursor()
+
+    df = DataFrame()
+    for var in variables:
+        query = """
+        SELECT fdate, ST_value(ra.rast, pn.pt_geom) AS val
+        FROM {0}.nmme_{1} AS ra,
+            (
+                SELECT ST_SetSRID(ST_Point({2}, {3}), 4326) AS pt_geom
+            ) AS pn
+        WHERE
+            ST_Within(pn.pt_geom, ST_Envelope(rast))
+            AND fdate>=date '{4}' AND fdate<=date '{5}' AND ens={6}
+        """.format(schema, var, lon, lat, datefrom.strftime("%Y-%m-%d"),
+                   dateto.strftime("%Y-%m-%d"), ens)
         cur.execute(query)
         rows = np.array(cur.fetchall())
         if len(rows) < 1:

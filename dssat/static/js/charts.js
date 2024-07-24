@@ -82,4 +82,4 @@ for (var j = 0; j < arr.length; j++) {
         $('#selected_daps').val(selected);
     });
 
-document.getElementById('adm1').innerText=admin1;
+document.getElementById('adm1').innerText=admin1+', '+admin1_country;

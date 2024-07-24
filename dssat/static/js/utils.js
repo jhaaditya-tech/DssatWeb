@@ -28,7 +28,7 @@ console.log(typeof(series.data))
       'planting_date':planting_date,
       'dbname':'dssatserv',
       'schema':admin1_country,
-      'admin1':document.getElementById('adm1').innerText,
+      'admin1':admin1,
   }
 
  var xhr= ajax_call('run-experiment/',json_data);

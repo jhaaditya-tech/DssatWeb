@@ -192,7 +192,7 @@ class Session:
             "PFRST": planting_window_start.strftime("%y%j"),
             "PLAST": planting_window_end.strftime("%y%j"),
         }
-        from dssat.api import run_spatial_dssat
+        from dssat.api1 import run_spatial_dssat
 
         df, overview = run_spatial_dssat(
             dbname="",

@@ -10,11 +10,58 @@ function load_charts(admin1){
 
 }
 
-
-
+function ajax_call(ajax_url, ajax_data) {
+    //update database
+    console.log(ajax_data);
+    return $.ajax({
+        type: "POST",
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+        url: ajax_url.replace(/\/?$/, '/'),
+        dataType: "json",
+        data: ajax_data
+    })
+        .fail(function (xhr, status, error) {
+        });
+}
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+function zoomToRegions(schema){
+    var json_data={'schema':schema};
+    var xhr= ajax_call('get-regions/',json_data);
+ xhr.done(function(data){
+     console.log(data)
+     var geojson = L.geoJSON(data.rows,{onEachFeature: onEachFeature_regions}).addTo(map);
+ });
+}
 function whenClicked(e) {
-        var admin1 = e.target.feature.properties.admin1;
-        var country = e.target.feature.properties.country;
+            var country = e.target.feature.properties.country;
+              map.fitBounds(e.target.getBounds());
+    zoomToRegions(country)
+
+
+
+
+
+}
+function whenClicked_region(e){
+            console.log(e.target.feature)
+            var admin1 = e.target.feature.properties.admin1;
+        console.log(admin1);
+
+        var country = e.target.feature.properties.adm0_en;
         console.log(e.target.feature.properties);
             var str=[admin1,country.toLowerCase().toString()].join('_');
     console.log(str)
@@ -22,15 +69,11 @@ function whenClicked(e) {
     var popup = L.popup();
 
     popup.setLatLng(e.latlng)
-         .setContent('<b>Selected Admin Region: </b>'
-             + admin1
-             +'<br><br>Clicking on the following button will show the baseline charts and allow you to work with yield, anomaly and stress charts.'
+         .setContent(
+             '<h4>'+admin1+'</h4>'
+             +'Clicking on the following button will show the baseline charts and allow you to work with yield, anomaly and stress charts.'
              + '<br><br><center><button id="charts" class="btn btn-secondary" onclick="load_charts('+str+')">Load charts</button>')
         .openOn(map);
-
-
-
-
 }
 function onEachFeature(feature, layer) {
 
@@ -39,6 +82,12 @@ function onEachFeature(feature, layer) {
         click: whenClicked
     });
 
+}
+
+function onEachFeature_regions(feature, layer) {
+    layer.on({
+        click: whenClicked_region
+    })
 }
 var  country_layer = L.geoJSON(shp_obj, {
                 style: {

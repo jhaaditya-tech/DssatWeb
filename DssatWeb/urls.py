@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 
-from dssat.api import validation_chart,run_experiment,baseline
+from dssat.api import regions_geojson
+from dssat.api import run_experiment
 from dssat.views import home, charts, about
 from django.urls import path
 
@@ -25,7 +26,8 @@ urlpatterns = [
     # path('run-spatial-dssat/',run_spatial_dssat,name='run-spatial-dssat'),
     path('charts/<str:admin1>/',charts,name='charts'),
     path('charts/validation-chart/<str:admin1>/',home,name='validation-chart'),
-    path('charts/<str:admin1>/baseline-chart/',baseline,name='baseline-chart'),
+    # path('charts/<str:admin1>/baseline-chart/',baseline,name='baseline-chart'),
     path('charts/<str:admin1>/run-experiment/',run_experiment,name='run-experiment'),
+    path('get-regions/',regions_geojson,name='regions-geojson'),
     path('about/',about,name='about'),
 ]

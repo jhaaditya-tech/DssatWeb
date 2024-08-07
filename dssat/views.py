@@ -10,8 +10,8 @@ import json
 
 # Create your views here.
 import geojson
-
-from dssat.api import validation_chart,init_columnRange_chart,init_anomalies_chart,init_stress_chart
+from dssatservice.ui.plot import init_anomalies_chart,init_stress_chart
+from dssat.api import  init_columnRange, validation_ch
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 f = open(str(BASE_DIR) + '/data.json', )
@@ -45,22 +45,24 @@ def home(request,admin1='Nakuru'):
 def charts(request,admin1='Nakuru_kenya'):
     admin1_name=admin1.split('_')[0]
     admin1_country= admin1.split('_')[1]
-    column, scatter, desc, cultivars, x = validation_chart(request, admin1)
-
-    column_chart = init_columnRange_chart()
+    print(admin1)
+    desc,column,cultivars,x= validation_ch(request, admin1)
+    column_chart = init_columnRange(admin1)
     anomaly_chart = init_anomalies_chart()
-    stress_chart_water = init_stress_chart('water', 'stress_chart_water')
-    stress_chart_nitrogen = init_stress_chart('nitrogen', 'stress_chart_nitrogen')
+    anomaly_chart.container='anomaly_chart'
+    column_chart.container='column_chart'
+    stress_chart_water = init_stress_chart('water')
+    stress_chart_water.container='stress_chart_water'
+    stress_chart_nitrogen = init_stress_chart('nitrogen')
+    stress_chart_nitrogen.container='stress_chart_nitrogen'
 
     sFile = open(config['PATH_TO_KENYA'], "rb")
     # gdf = gpd.read_file(config['PATH_TO_KENYA'])
     gdf = gpd.read_file(sFile)
     data = json.loads(json.dumps(gdf.to_json()))
-    return render(request, 'charts.html', {'admin1':admin1_name,'admin1_country':admin1_country,'desc': desc, 'cultivars': cultivars,
-                                          'chart': column, 'data': data, 'column_chart': column_chart.to_js_literal(),
-                                          'anomaly_chart': anomaly_chart.to_js_literal(),
-                                          'stress_chart_water': stress_chart_water.to_js_literal(),
-                                          'stress_chart_nitrogen': stress_chart_nitrogen.to_js_literal()})
+    return render(request, 'charts.html', {'admin1':admin1_name,'admin1_country':admin1_country,'desc': desc, 'cultivar_keys': cultivars, 'cultivar_values': x,
+                                          'chart': column.to_js_literal(), 'data': data,
+                                          'range_chart': column_chart.to_js_literal(), 'anomaly_chart': anomaly_chart.to_js_literal(),'stress_chart_water': stress_chart_water.to_js_literal(),'stress_chart_nitrogen': stress_chart_nitrogen.to_js_literal() })
 
 def about(request):
     return render(request, 'about.html')

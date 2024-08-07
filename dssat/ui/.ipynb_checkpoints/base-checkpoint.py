@@ -6,7 +6,7 @@ import sys
 
 sys.path.append("..")
 import dssat.database as db
-from dssat.api import run_spatial_dssat
+from dssat.api1 import run_spatial_dssat
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd

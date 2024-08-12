@@ -36,8 +36,8 @@ function generate_charts(){
 var water_chart= Highcharts.charts[index];
 index= $("#stress_chart_nitrogen").data('highchartsChart');
 var nitro_chart= Highcharts.charts[index];
-// index= $("#column_chart").data('highchartsChart');
-// var column_chart= Highcharts.charts[index];
+index= $("#column_chart").data('highchartsChart');
+var column_chart= Highcharts.charts[index];
 // var series=column_chart.series[0];
 // console.log(typeof(series.data))
   var json_data={
@@ -52,10 +52,25 @@ var nitro_chart= Highcharts.charts[index];
 
  var xhr= ajax_call('run-experiment/',json_data);
  xhr.done(function(data){
-     // var xw=JSON.parse(data.water_series);
-     //  var xn=JSON.parse(data.nitrogen_series);
-     // water_chart.addSeries(xw,true);
-     // nitro_chart.addSeries(xn,true);
+     console.log(data)
+
+// column_chart.update({
+//     chart: {
+//         type: 'columnrange'
+//     },
+//            xAxis: {
+//             type: 'category'
+//         },
+// });
+//      for(var x=0;x<data.range_chart.length;x++){
+//             column_chart.addSeries({data:data.range_chart[x]},true);
+
+     // }
+     // var xw=JSON.parse(data.stress_chart_water);
+     //  var xn=JSON.parse(data.stress_chart_nitrogen);
+      console.log(data.stress_chart_nitrogen)
+     water_chart.addSeries(data.stress_chart_water.series,true);
+     nitro_chart.addSeries(data.stress_chart_nitrogen,true);
      // column_chart.addSeries({data:data.yield_series,name:'test'});
  });
 
@@ -106,34 +121,39 @@ function ajax_call(ajax_url, ajax_data) {
         .fail(function (xhr, status, error) {
         });
 }
-function addToBox(){
-   var val_rate= document.getElementById('customRange2').value;
-   var val_dap= document.getElementById('customRange1').value;
-   if (val_dap && val_rate) {
-       var tbodyRef = document.getElementById('nitrogen_table').getElementsByTagName('tbody')[0];
+function addToBox() {
+    var val_rate = document.getElementById('customRange2').value;
+    var val_dap = document.getElementById('customRange1').value;
+    if (val_dap && val_rate) {
+        var tbodyRef = document.getElementById('nitrogen_table').getElementsByTagName('tbody')[0];
 
 // Insert a row at the end of table
-       var newRow = tbodyRef.insertRow();
+        var newRow = tbodyRef.insertRow();
 
 // Insert a cell at the end of the row
-       var newCell = newRow.insertCell();
+        var newCell = newRow.insertCell();
 
 // Append a text node to the cell
-       var newText = document.createTextNode(val_dap);
-       newCell.appendChild(newText);
+        var newText = document.createTextNode(val_dap);
+        newCell.appendChild(newText);
 
-       newCell = newRow.insertCell();
+        newCell = newRow.insertCell();
 
 // Append a text node to the cell
-       newText = document.createTextNode(val_rate);
-       newCell.appendChild(newText);
-       newCell = newRow.insertCell();
-       newText = document.createTextNode('Delete');
-       newCell.appendChild(newText);
-   }
-   else {
-       alert('please enter values')
-   }
+        newText = document.createTextNode(val_rate);
+        newCell.appendChild(newText);
+        newCell = newRow.insertCell();
+        var newButton = document.createElement("button");
+        newButton.innerHTML = 'Delete';
+        newButton.className = 'btn btn-danger';
+        // newText = document.createTextNode('Delete');
+        newCell.appendChild(newButton);
+        newButton.onclick = function () {
+   newButton.closest('tr').remove()
+        };
+    } else {
+        alert('please enter values')
+    }
 
 }
 

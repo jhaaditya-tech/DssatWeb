@@ -28,6 +28,26 @@
     <script src="https://code.highcharts.com/modules/no-data-to-display.js"></script>
 
     <script src="{% static 'js/utils.js' %}"></script>
+    <style>
+        abbr {
+position: relative;
+ border-bottom: none !important;
+  cursor: inherit !important;
+  text-decoration: none !important;
+}
+
+abbr:hover::after {
+position: absolute;
+    border:black solid 1px;
+    width: 200px;
+left: 100%;
+display: inline;
+padding: 0.5em;
+background: white;
+content: attr(title);
+    z-index: 1000;
+}
+    </style>
 </head>
 <body>
 <script>
@@ -89,11 +109,11 @@
                 <h4>Select parameters</h4>
 
                                      <div>
-                        <label for="startDate">Planting date</label>
+                        <label for="startDate"><abbr title="The date the crop was or will be planted. Some values should not be allowed so that users don’t select dates that are not available in the database.">Planting date</abbr></label>
                         <input id="startDate" class="form-control" type="date"/>
                     </div>
 
-                    <label for="cultivar">Select cultivar</label>
+                    <label for="cultivar"><abbr title="Crop variety."> Cultivar</abbr></label>
                     <select id="cultivar" class="form-select">
                     </select>
 
@@ -111,8 +131,8 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="row">
-                                <label for="customRange1" class="w-50">Nitrogen Daps(kg N/ha):</label>
-                                        <label for="customRange2" class="w-50">Rate(kg N/ha):</label>
+                                        <label for="customRange1" class="w-50"><abbr title="Defines with nitrogen rate the nitrogen fertilizer application. It is Day after planting for nitrogen fertilizer application.">Nitrogen Daps(kg N/ha):</abbr></label>
+                                        <label for="customRange2" class="w-50"><abbr title="Accompanies Nitrogen dap to define the nitrogen application. Nitrogen fertilizer application amount (kg/ha).">Rate(kg N/ha):</abbr></label>
                                     </div>
                                     </div>
                             </div>
@@ -156,17 +176,34 @@
 
                 <div class="col-md-9" style="height: 100%;overflow: scroll">
                     <h4 class="pt-2">Selected Admin1 region: <span id="adm1"></span></h4>
-                    <p id="baseline_desc">Baseline Description</p>
 
-
-
-                                        <div id="chart" style="height: 500px;text-align: center">Loading baseline chart....</div>
-
+                    <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
+                       <h5> Baseline Chart: </h5>
+<p>This chart shows how the tuned model performs when compared to measured data.
+<span id="baseline_desc">{{ desc}}</span></p>
+                    <div id="chart" style="height: 500px;text-align: center">Loading baseline chart....</div>
+                        </div>
+<div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
+    <h5>Dssat Simulated Maize Yield:</h5>
+    <p>This chart shows the possible yield values to be expected in the region (admin1) according to the parameters defined by the user. The range of values considers the variability in weather and soil conditions within that region. Each run or experiment will generate a new bar in the chart.</p>
                     <div id="column_chart"></div>
+    </div>
+                    <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
+                        <h5>Dssat Simulated Maize Yield Anomaly Probability:</h5>
+                        <p>This chart is similar to the above maize yield chart, however it shows a probability instead of absolute values. It shows the probabilities of obtaining yield values in three main categories: lower than normal, higher than normal, or within normal range.</p>
    <div id="anomaly_chart"></div>
-
+</div>
+                    <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
+                        <h5>Water Stress chart:</h5>
+                        <p>This chart shows the average stress experienced by the crop during the different developmental stages as simulated by the model. This chart gives insights on the moments where the crop is experiencing stress due to the lack of water. This can help the user think on possible adaptation strategies.</p>
                        <div id="stress_chart_water"></div>
+                        </div>
+                    <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
+                        <h5>Nitrogen Stress chart:</h5>
+                        <p>This chart shows the average stress experienced by the crop during the different developmental stages as simulated by the model. This chart gives insights on the moments where the crop is experiencing stress due to the lack of nitrogen fertilizer. This can help the user think on possible adaptation strategies.</p>
+
                          <div id="stress_chart_nitrogen"></div>
+                    </div>
                         </div>
                 </div>
 
@@ -178,7 +215,7 @@
 <script src="{% static 'highcharts_config/baseline_template.js' %}"></script>
 <script id="charts">
    {{ chart|safe }}
-
+   {{ new_chart|safe }}
    {{ range_chart|safe }}
       {{ anomaly_chart|safe }}
 

@@ -103,12 +103,12 @@ def run_experiment(request,admin1):
     range_chart = init_columnRange_chart(session)
     anom_chart.container='anomaly_chart'
     range_chart.container='column_chart'
-    new_chart_data = get_columnRange_series_data(session)
+    new_chart_data_range = get_columnRange_series_data(session)
     for serie in range_chart.to_dict()["userOptions"]["series"]:
         if serie.get("data"):
-            serie["data"] += [new_chart_data[serie["name"]]]
+            serie["data"] += [new_chart_data_range[serie["name"]]]
         else:
-            serie["data"] = [new_chart_data[serie["name"]]]
+            serie["data"] = [new_chart_data_range[serie["name"]]]
 
     # Add data for anomaly chart
     new_chart_data = get_anomaly_series_data(session)
@@ -119,4 +119,27 @@ def run_experiment(request,admin1):
         else:
             serie["data"] = [new_chart_data[serie["name"]]]
 
-    return JsonResponse({'anomaly_chart': anom_chart.to_js_literal(),'range_chart': range_chart.to_js_literal()})
+    stress_chart_water = init_stress_chart('water')
+    stress_chart_water.container='stress_chart_water'
+    stress_chart_nitrogen = init_stress_chart('nitrogen')
+    stress_chart_nitrogen.container='stress_chart_nitrogen'
+
+    new_chart_data = get_stress_series_data(session, stresstype="water")
+    if not stress_chart_water.to_dict()["userOptions"].get("series"):
+        new_chart_data["name"] = f"Exp 1"
+        stress_chart_water.to_dict()["userOptions"]["series"] = [new_chart_data]
+    else:
+        n_exps = len(stress_chart_water["userOptions"]["series"])
+        new_chart_data["name"] = f"Exp {n_exps + 1}"
+        stress_chart_water.to_dict()["userOptions"]["series"] += [new_chart_data]
+
+    new_chart_data = get_stress_series_data(session, stresstype="nitrogen")
+    if not stress_chart_nitrogen.to_dict()["userOptions"].get("series"):
+        new_chart_data["name"] = f"Exp 1"
+        stress_chart_nitrogen.to_dict()["userOptions"]["series"] = [new_chart_data]
+    else:
+        n_exps = len(stress_chart_nitrogen["userOptions"]["series"])
+        new_chart_data["name"] = f"Exp {n_exps + 1}"
+        stress_chart_nitrogen.to_dict()["userOptions"]["series"] += [new_chart_data]
+
+    return JsonResponse({'anomaly_chart': anom_chart.to_js_literal(),'range_chart': range_chart.to_dict()["userOptions"]["series"],'stress_chart_water': stress_chart_water.to_dict()["userOptions"],'stress_chart_nitrogen': stress_chart_nitrogen.to_dict()["userOptions"].get("series") })

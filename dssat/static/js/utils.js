@@ -17,62 +17,81 @@ function get_rates(){
     }
 return rates;
 }
-function generate_charts(){
+function generate_charts() {
     var planting_date;
-    var daps=[];
-    var rate=[];
+    var daps = [];
+    var rate = [];
     var cultivar;
-  daps = get_daps();
-  rate=get_rates();
-  planting_date=$('#startDate').val();
-  cultivar=$('#cultivar').val();
+    daps = get_daps();
+    rate = get_rates();
+    planting_date = $('#startDate').val();
+    cultivar = $('#cultivar').val();
 
 
-  console.log(planting_date);
-  console.log(cultivar);
-  console.log(daps);
-  console.log(rate);
-  var index = $("#stress_chart_water").data('highchartsChart');
-var water_chart= Highcharts.charts[index];
-index= $("#stress_chart_nitrogen").data('highchartsChart');
-var nitro_chart= Highcharts.charts[index];
-index= $("#column_chart").data('highchartsChart');
-var column_chart= Highcharts.charts[index];
+    console.log(planting_date);
+    console.log(cultivar);
+    console.log(daps);
+    console.log(rate);
+    var index = $("#stress_chart_water").data('highchartsChart');
+    var water_chart = Highcharts.charts[index];
+    index = $("#stress_chart_nitrogen").data('highchartsChart');
+    var nitro_chart = Highcharts.charts[index];
+    index = $("#column_chart").data('highchartsChart');
+    var column_chart = Highcharts.charts[index];
+        index = $("#anomaly_chart").data('highchartsChart');
+    var anomaly_chart = Highcharts.charts[index];
 // var series=column_chart.series[0];
 // console.log(typeof(series.data))
-  var json_data={
-      'nitrogen_rate':rate,
-      'nitrogen_dap':daps,
-      'cultivar':cultivar,
-      'planting_date':planting_date,
-      'dbname':'dssatserv',
-      'schema':admin1_country,
-      'admin1':admin1,
-  }
+    var json_data = {
+        'nitrogen_rate': rate,
+        'nitrogen_dap': daps,
+        'cultivar': cultivar,
+        'planting_date': planting_date,
+        'dbname': 'dssatserv',
+        'schema': admin1_country,
+        'admin1': admin1,
+    }
 
- var xhr= ajax_call('run-experiment/',json_data);
- xhr.done(function(data){
-     console.log(data)
+    var xhr = ajax_call('run-experiment/', json_data);
+    xhr.done(function (data) {
+        console.log(data)
 
-// column_chart.update({
-//     chart: {
-//         type: 'columnrange'
-//     },
-//            xAxis: {
-//             type: 'category'
-//         },
-// });
-//      for(var x=0;x<data.range_chart.length;x++){
-//             column_chart.addSeries({data:data.range_chart[x]},true);
+        var s= data.range_chart;
+        var series=[];
+        for (var i=0;i< s.length;i++) {
+            series.push({'data':s[i]})
+        }
+        console.log(series);
 
+        column_chart.update({
+            chart: {
+                type: 'column'
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal'
+                }
+            },
+            xAxis: data.rcoptions.xAxis,
+            yAxis: data.rcoptions.yAxis,
+            tooltip: data.rcoptions.tooltip,
+            series: series
+        });
+     // for(var x=0;x<data.range_chart.length;x++) {
+     //     column_chart.addSeries({data:data.range_chart[x]}, true);
      // }
-     // var xw=JSON.parse(data.stress_chart_water);
-     //  var xn=JSON.parse(data.stress_chart_nitrogen);
-      console.log(data.stress_chart_nitrogen)
-     water_chart.addSeries(data.stress_chart_water.series,true);
-     nitro_chart.addSeries(data.stress_chart_nitrogen,true);
-     // column_chart.addSeries({data:data.yield_series,name:'test'});
- });
+     //        column_chart.redraw();
+
+        // }
+        // var xw=JSON.parse(data.stress_chart_water);
+        //  var xn=JSON.parse(data.stress_chart_nitrogen);
+        // console.log(data.stress_chart_nitrogen)
+        nitro_chart.addSeries(data.stress_chart_nitrogen, true);
+        water_chart.addSeries(data.stress_chart_water, true);
+        // anomaly_chart.addSeries(data.anomaly_chart,true);
+
+        // column_chart.addSeries({data:data.yield_series,name:'test'});
+    });
 
 
 }

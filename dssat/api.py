@@ -103,43 +103,50 @@ def run_experiment(request,admin1):
     range_chart = init_columnRange_chart(session)
     anom_chart.container='anomaly_chart'
     range_chart.container='column_chart'
+    test=[]
     new_chart_data_range = get_columnRange_series_data(session)
-    for serie in range_chart.to_dict()["userOptions"]["series"]:
+    # print(range_chart.to_dict()["userOptions"]["series"])
+    temp_range=range_chart.to_dict()["userOptions"]["series"]
+    test_options=anom_chart.to_dict()["userOptions"]
+    for serie in temp_range:
         if serie.get("data"):
             serie["data"] += [new_chart_data_range[serie["name"]]]
+            # test += [new_chart_data_range[serie["name"]]]
         else:
             serie["data"] = [new_chart_data_range[serie["name"]]]
-
+            # test = [new_chart_data_range[serie["name"]]]
+    for series in temp_range:
+        test.append(series.get("data"))
     # Add data for anomaly chart
-    new_chart_data = get_anomaly_series_data(session)
-    for serie in anom_chart.to_dict()["userOptions"]["series"]:
+    new_chart_data_an = get_anomaly_series_data(session)
 
+    for serie in anom_chart.to_dict()["userOptions"]["series"]:
         if serie.get("data"):
-            serie["data"] += [new_chart_data[serie["name"]]]
+            serie["data"] += [new_chart_data_an[serie["name"]]]
         else:
-            serie["data"] = [new_chart_data[serie["name"]]]
+            serie["data"] = [new_chart_data_an[serie["name"]]]
 
     stress_chart_water = init_stress_chart('water')
     stress_chart_water.container='stress_chart_water'
     stress_chart_nitrogen = init_stress_chart('nitrogen')
     stress_chart_nitrogen.container='stress_chart_nitrogen'
 
-    new_chart_data = get_stress_series_data(session, stresstype="water")
+    new_chart_data_water = get_stress_series_data(session, stresstype="water")
     if not stress_chart_water.to_dict()["userOptions"].get("series"):
-        new_chart_data["name"] = f"Exp 1"
-        stress_chart_water.to_dict()["userOptions"]["series"] = [new_chart_data]
+        new_chart_data_water["name"] = f"Exp 1"
+        stress_chart_water.to_dict()["userOptions"]["series"] = [new_chart_data_water]
     else:
         n_exps = len(stress_chart_water["userOptions"]["series"])
-        new_chart_data["name"] = f"Exp {n_exps + 1}"
-        stress_chart_water.to_dict()["userOptions"]["series"] += [new_chart_data]
+        new_chart_data_water["name"] = f"Exp {n_exps + 1}"
+        stress_chart_water.to_dict()["userOptions"]["series"] += [new_chart_data_water]
 
-    new_chart_data = get_stress_series_data(session, stresstype="nitrogen")
+    new_chart_data_nitro = get_stress_series_data(session, stresstype="nitrogen")
     if not stress_chart_nitrogen.to_dict()["userOptions"].get("series"):
-        new_chart_data["name"] = f"Exp 1"
-        stress_chart_nitrogen.to_dict()["userOptions"]["series"] = [new_chart_data]
+        new_chart_data_nitro["name"] = f"Exp 1"
+        stress_chart_nitrogen.to_dict()["userOptions"]["series"] = [new_chart_data_nitro]
     else:
         n_exps = len(stress_chart_nitrogen["userOptions"]["series"])
-        new_chart_data["name"] = f"Exp {n_exps + 1}"
-        stress_chart_nitrogen.to_dict()["userOptions"]["series"] += [new_chart_data]
+        new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
+        stress_chart_nitrogen.to_dict()["userOptions"]["series"] += [new_chart_data_nitro]
 
-    return JsonResponse({'anomaly_chart': anom_chart.to_js_literal(),'range_chart': range_chart.to_dict()["userOptions"]["series"],'stress_chart_water': stress_chart_water.to_dict()["userOptions"],'stress_chart_nitrogen': stress_chart_nitrogen.to_dict()["userOptions"].get("series") })
+    return JsonResponse({'anomaly_chart': new_chart_data_an,'rcoptions':test_options,'range_chart': test,'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})

@@ -33,91 +33,97 @@ const objToArray = (obj) => {
         }
 
 function generate_charts() {
-    var planting_date;
-    var daps = [];
-    var rate = [];
-    var cultivar;
-    daps = get_daps();
-    rate = get_rates();
-    planting_date = $('#startDate').val();
-    cultivar = $('#cultivar').val();
+        var val_rate = document.getElementById('customRange2').value;
+    var val_dap = document.getElementById('customRange1').value;
+    if (val_dap && val_rate) {
+        var planting_date;
+        var daps = [];
+        var rate = [];
+        var cultivar;
+        daps = get_daps();
+        rate = get_rates();
+        planting_date = $('#startDate').val();
+        cultivar = $('#cultivar').val();
 
 
-    console.log(planting_date);
-    console.log(cultivar);
-    console.log(daps);
-    console.log(rate);
-    var index = $("#stress_chart_water").data('highchartsChart');
-    var water_chart = Highcharts.charts[index];
-    index = $("#stress_chart_nitrogen").data('highchartsChart');
-    var nitro_chart = Highcharts.charts[index];
-    index = $("#column_chart").data('highchartsChart');
-    var column_chart = Highcharts.charts[index];
+        console.log(planting_date);
+        console.log(cultivar);
+        console.log(daps);
+        console.log(rate);
+        var index = $("#stress_chart_water").data('highchartsChart');
+        var water_chart = Highcharts.charts[index];
+        index = $("#stress_chart_nitrogen").data('highchartsChart');
+        var nitro_chart = Highcharts.charts[index];
+        index = $("#column_chart").data('highchartsChart');
+        var column_chart = Highcharts.charts[index];
         index = $("#anomaly_chart").data('highchartsChart');
-    var anomaly_chart = Highcharts.charts[index];
+        var anomaly_chart = Highcharts.charts[index];
         index = $("#chart").data('highchartsChart');
-    var chart = Highcharts.charts[index];
+        var chart = Highcharts.charts[index];
 // var series=column_chart.series[0];
 // console.log(typeof(series.data))
-    var json_data = {
-        'nitrogen_rate': rate,
-        'nitrogen_dap': daps,
-        'cultivar': cultivar,
-        'planting_date': planting_date,
-        'dbname': 'dssatserv',
-        'schema': admin1_country,
-        'admin1': admin1,
-    }
-
-    var xhr = ajax_call('run-experiment/', json_data);
-    xhr.done(function (data) {
-        console.log(data)
-
-
-        var s= data.range_chart.series;
-        var series=[];
-
-        for (var i=0;i< s.length;i++) {
-            var d=[];
-
-            d=[s[i].data[0]['low'],s[i].data[0]['high']]
-            s[i].data=[d];
-            series.push(s[i])
+        var json_data = {
+            'nitrogen_rate': rate,
+            'nitrogen_dap': daps,
+            'cultivar': cultivar,
+            'planting_date': planting_date,
+            'dbname': 'dssatserv',
+            'schema': admin1_country,
+            'admin1': admin1,
         }
-        console.log(series);
 
-        //
-        column_chart.update({
-            xAxis:data.range_chart.xAxis,
-            yAxis:data.range_chart.yAxis,
+        var xhr = ajax_call('run-experiment/', json_data);
+        xhr.done(function (data) {
+            console.log(data)
 
-            series: data.range_chart.series,
+
+            var s = data.range_chart.series;
+            var series = [];
+
+            for (var i = 0; i < s.length; i++) {
+                var d = [];
+
+                d = [s[i].data[0]['low'], s[i].data[0]['high']]
+                s[i].data = [d];
+                series.push(s[i])
+            }
+            console.log(series);
+
+            //
+            column_chart.update({
+                xAxis: data.range_chart.xAxis,
+                yAxis: data.range_chart.yAxis,
+
+                series: data.range_chart.series,
+            });
+            anomaly_chart.update({
+                xAxis: data.anomaly_chart.xAxis,
+                yAxis: data.anomaly_chart.yAxis,
+
+                series: data.anomaly_chart.series,
+            });
+            //    console.log(column_chart)
+            // for(var x=0;x<data.range_chart.length;x++) {
+            //     column_chart.addSeries({data:data.range_chart[x]}, true);
+            // }
+            //        column_chart.redraw();
+
+            // }
+            // var xw=JSON.parse(data.stress_chart_water);
+            //  var xn=JSON.parse(data.stress_chart_nitrogen);
+            // console.log(data.stress_chart_nitrogen)
+            nitro_chart.addSeries(data.stress_chart_nitrogen, true);
+            water_chart.addSeries(data.stress_chart_water, true);
+            // column_chart.addSeries(series,true);
+
+            // column_chart.redraw()
+
         });
-         anomaly_chart.update({
-            xAxis:data.anomaly_chart.xAxis,
-            yAxis:data.anomaly_chart.yAxis,
 
-            series: data.anomaly_chart.series,
-        });
-        //    console.log(column_chart)
-     // for(var x=0;x<data.range_chart.length;x++) {
-     //     column_chart.addSeries({data:data.range_chart[x]}, true);
-     // }
-     //        column_chart.redraw();
-
-        // }
-        // var xw=JSON.parse(data.stress_chart_water);
-        //  var xn=JSON.parse(data.stress_chart_nitrogen);
-        // console.log(data.stress_chart_nitrogen)
-        nitro_chart.addSeries(data.stress_chart_nitrogen, true);
-        water_chart.addSeries(data.stress_chart_water, true);
-        // column_chart.addSeries(series,true);
-
-         // column_chart.redraw()
-
-    });
-
-
+    }
+    else{
+        alert('Please select all parameters in order to generate charts')
+    }
 }
 function select_chart(btn){
     console.log(btn.id);

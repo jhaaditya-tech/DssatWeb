@@ -17,6 +17,21 @@ function get_rates(){
     }
 return rates;
 }
+
+const isObject = (obj) => {
+  return typeof obj === 'object' && !Array.isArray(obj) && obj !== null;
+}
+
+const objToArray = (obj) => {
+          return Object.keys(obj).map((key) => {
+            return [
+              key, isObject(obj[key]) ?
+                objToArray(obj[key]) :
+                obj[key]
+            ];
+          });
+        }
+
 function generate_charts() {
     var planting_date;
     var daps = [];
@@ -40,6 +55,8 @@ function generate_charts() {
     var column_chart = Highcharts.charts[index];
         index = $("#anomaly_chart").data('highchartsChart');
     var anomaly_chart = Highcharts.charts[index];
+        index = $("#chart").data('highchartsChart');
+    var chart = Highcharts.charts[index];
 // var series=column_chart.series[0];
 // console.log(typeof(series.data))
     var json_data = {
@@ -56,27 +73,33 @@ function generate_charts() {
     xhr.done(function (data) {
         console.log(data)
 
-        var s= data.range_chart;
+
+        var s= data.range_chart.series;
         var series=[];
+
         for (var i=0;i< s.length;i++) {
-            series.push({'data':s[i]})
+            var d=[];
+
+            d=[s[i].data[0]['low'],s[i].data[0]['high']]
+            s[i].data=[d];
+            series.push(s[i])
         }
         console.log(series);
 
+        //
         column_chart.update({
-            chart: {
-                type: 'column'
-            },
-            plotOptions: {
-                column: {
-                    stacking: 'normal'
-                }
-            },
-            xAxis: data.rcoptions.xAxis,
-            yAxis: data.rcoptions.yAxis,
-            tooltip: data.rcoptions.tooltip,
-            series: series
+            xAxis:data.range_chart.xAxis,
+            yAxis:data.range_chart.yAxis,
+
+            series: data.range_chart.series,
         });
+         anomaly_chart.update({
+            xAxis:data.anomaly_chart.xAxis,
+            yAxis:data.anomaly_chart.yAxis,
+
+            series: data.anomaly_chart.series,
+        });
+        //    console.log(column_chart)
      // for(var x=0;x<data.range_chart.length;x++) {
      //     column_chart.addSeries({data:data.range_chart[x]}, true);
      // }
@@ -88,9 +111,10 @@ function generate_charts() {
         // console.log(data.stress_chart_nitrogen)
         nitro_chart.addSeries(data.stress_chart_nitrogen, true);
         water_chart.addSeries(data.stress_chart_water, true);
-        // anomaly_chart.addSeries(data.anomaly_chart,true);
+        // column_chart.addSeries(series,true);
 
-        // column_chart.addSeries({data:data.yield_series,name:'test'});
+         // column_chart.redraw()
+
     });
 
 

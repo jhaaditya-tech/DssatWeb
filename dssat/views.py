@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from highcharts_core.chart import Chart
 from pandas_highcharts.core import serialize
 import os
 import geopandas as gpd
@@ -50,7 +51,7 @@ def charts(request,admin1='Nakuru_kenya'):
     column_chart = init_columnRange(admin1)
     anomaly_chart = init_anomalies_chart()
     anomaly_chart.container='anomaly_chart'
-    column_chart.container='column_chart'
+    column_chart.container = 'column_chart'
     stress_chart_water = init_stress_chart('water')
     stress_chart_water.container='stress_chart_water'
     stress_chart_nitrogen = init_stress_chart('nitrogen')

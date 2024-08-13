@@ -100,27 +100,25 @@ def run_experiment(request,admin1):
     )
     session.run_experiment(fakerun=True)
     anom_chart = init_anomalies_chart()
-    range_chart = init_columnRange_chart(session)
+
+    r_chart = init_columnRange_chart(session)
     anom_chart.container='anomaly_chart'
-    range_chart.container='column_chart'
-    test=[]
+    r_chart.container = 'column_chart'
+    range_chart=r_chart.to_dict()
+    anomaly_chart=anom_chart.to_dict()
+    # range_chart.container='column_chart'
+    # test=range_chart.to_dict()
     new_chart_data_range = get_columnRange_series_data(session)
-    # print(range_chart.to_dict()["userOptions"]["series"])
-    temp_range=range_chart.to_dict()["userOptions"]["series"]
-    test_options=anom_chart.to_dict()["userOptions"]
-    for serie in temp_range:
+    for serie in range_chart["userOptions"]["series"]:
         if serie.get("data"):
             serie["data"] += [new_chart_data_range[serie["name"]]]
-            # test += [new_chart_data_range[serie["name"]]]
         else:
             serie["data"] = [new_chart_data_range[serie["name"]]]
-            # test = [new_chart_data_range[serie["name"]]]
-    for series in temp_range:
-        test.append(series.get("data"))
+
     # Add data for anomaly chart
     new_chart_data_an = get_anomaly_series_data(session)
 
-    for serie in anom_chart.to_dict()["userOptions"]["series"]:
+    for serie in anomaly_chart["userOptions"]["series"]:
         if serie.get("data"):
             serie["data"] += [new_chart_data_an[serie["name"]]]
         else:
@@ -148,5 +146,4 @@ def run_experiment(request,admin1):
         n_exps = len(stress_chart_nitrogen["userOptions"]["series"])
         new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
         stress_chart_nitrogen.to_dict()["userOptions"]["series"] += [new_chart_data_nitro]
-
-    return JsonResponse({'anomaly_chart': new_chart_data_an,'rcoptions':test_options,'range_chart': test,'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
+    return JsonResponse({'anomaly_chart': anomaly_chart["userOptions"],'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})

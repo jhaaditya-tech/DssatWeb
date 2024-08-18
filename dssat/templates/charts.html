@@ -31,21 +31,18 @@
     <script src="{% static 'js/utils.js' %}"></script>
     <style>
         abbr {
-position: relative;
- border-bottom: none !important;
-  cursor: inherit !important;
-  text-decoration: none !important;
+    position: relative;
 }
-
 abbr:hover::after {
-position: absolute;
-    border:black solid 1px;
-    width: 200px;
-left: 100%;
-display: inline;
-padding: 0.5em;
-background: white;
-content: attr(title);
+    content: attr(data-title);
+    position: absolute;
+    width: 300px;
+    left: 100%;
+    display: block;
+    padding: 0.5em;
+    background: white;
+    color:black;
+    border: solid black 1px;
     z-index: 1000;
 }
     </style>
@@ -110,11 +107,11 @@ content: attr(title);
                 <h4>Select parameters</h4>
 
                                      <div>
-                        <label for="startDate">Planting date <abbr title="The date the crop was or will be planted. Some values should not be allowed so that users don’t select dates that are not available in the database."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
+                        <label for="startDate">Planting date <abbr data-title="The date the crop was or will be planted. Some values should not be allowed so that users don’t select dates that are not available in the database."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
                         <input id="startDate" class="form-control" type="date"/>
                     </div>
 
-                    <label for="cultivar">Cultivar <abbr title="Crop variety."> <i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
+                    <label for="cultivar">Cultivar <abbr data-title="Crop variety."> <i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
                     <select id="cultivar" class="form-select">
                     </select>
 
@@ -132,8 +129,8 @@ content: attr(title);
                             <div class="row">
                                 <div class="col">
                                     <div class="row">
-                                        <label for="customRange1" class="w-50">Nitrogen Daps(kg N/ha): <abbr title="Defines with nitrogen rate the nitrogen fertilizer application. It is Day after planting for nitrogen fertilizer application."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
-                                        <label for="customRange2" class="w-50">Rate(kg N/ha): <abbr title="Accompanies Nitrogen dap to define the nitrogen application. Nitrogen fertilizer application amount (kg/ha)."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
+                                        <label for="customRange1" class="w-50">Nitrogen Daps(kg N/ha): <abbr data-title="Defines with nitrogen rate the nitrogen fertilizer application. It is Day after planting for nitrogen fertilizer application."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
+                                        <label for="customRange2" class="w-50">Rate(kg N/ha): <abbr data-title="Accompanies Nitrogen dap to define the nitrogen application. Nitrogen fertilizer application amount (kg/ha)."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
                                     </div>
                                     </div>
                             </div>

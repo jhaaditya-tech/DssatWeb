@@ -60,8 +60,10 @@ function generate_charts() {
         var anomaly_chart = Highcharts.charts[index];
         index = $("#chart").data('highchartsChart');
         var chart = Highcharts.charts[index];
-// var series=column_chart.series[0];
-// console.log(typeof(series.data))
+
+            localStorage.setItem('cdata', column_chart.series.options.data);
+
+
         var json_data = {
             'nitrogen_rate': rate,
             'nitrogen_dap': daps,
@@ -75,6 +77,7 @@ function generate_charts() {
         var xhr = ajax_call('run-experiment/', json_data);
         xhr.done(function (data) {
             console.log(data)
+            console.log(localStorage.getItem('cdata'));
 
 
             var s = data.range_chart.series;

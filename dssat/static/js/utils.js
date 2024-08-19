@@ -1,4 +1,4 @@
-
+var gc;
 function get_daps(){
     var daps=[];
     let tbl = document.getElementById("nitrogen_table").getElementsByTagName('tbody')[0];
@@ -60,10 +60,6 @@ function generate_charts() {
         var anomaly_chart = Highcharts.charts[index];
         index = $("#chart").data('highchartsChart');
         var chart = Highcharts.charts[index];
-
-            localStorage.setItem('cdata', column_chart.series.options.data);
-
-
         var json_data = {
             'nitrogen_rate': rate,
             'nitrogen_dap': daps,
@@ -74,10 +70,10 @@ function generate_charts() {
             'admin1': admin1,
         }
 
+
         var xhr = ajax_call('run-experiment/', json_data);
         xhr.done(function (data) {
-            console.log(data)
-            console.log(localStorage.getItem('cdata'));
+            console.log(data);
 
 
             var s = data.range_chart.series;
@@ -85,41 +81,40 @@ function generate_charts() {
 
             for (var i = 0; i < s.length; i++) {
                 var d = [];
+                if(s[i].length>1) {
+                    console.log('iin if')
+                    for (var j = 0; j < s[i].length; j++) {
+                        d.push([s[i][j].data[0]['low'], s[i][j].data[0]['high']])
 
-                d = [s[i].data[0]['low'], s[i].data[0]['high']]
-                s[i].data = [d];
+                    }
+                     s[i].data=[d];
+                }
+                else {
+                    d = [s[i].data[0]['low'], s[i].data[0]['high']]
+                    s[i].data = [d];
+                }
                 series.push(s[i])
             }
-            console.log(series);
 
-            //
+            console.log(series)
+
+
             column_chart.update({
                 xAxis: data.range_chart.xAxis,
                 yAxis: data.range_chart.yAxis,
-
                 series: data.range_chart.series,
             });
+
+
             anomaly_chart.update({
                 xAxis: data.anomaly_chart.xAxis,
                 yAxis: data.anomaly_chart.yAxis,
 
                 series: data.anomaly_chart.series,
             });
-            //    console.log(column_chart)
-            // for(var x=0;x<data.range_chart.length;x++) {
-            //     column_chart.addSeries({data:data.range_chart[x]}, true);
-            // }
-            //        column_chart.redraw();
 
-            // }
-            // var xw=JSON.parse(data.stress_chart_water);
-            //  var xn=JSON.parse(data.stress_chart_nitrogen);
-            // console.log(data.stress_chart_nitrogen)
             nitro_chart.addSeries(data.stress_chart_nitrogen, true);
             water_chart.addSeries(data.stress_chart_water, true);
-            // column_chart.addSeries(series,true);
-
-            // column_chart.redraw()
 
         });
 

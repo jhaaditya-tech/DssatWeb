@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 
 from dssat.api import regions_geojson
-from dssat.api import run_experiment
+from dssat.views import run_experiment
 from dssat.views import home, charts, about
 from django.urls import path
 

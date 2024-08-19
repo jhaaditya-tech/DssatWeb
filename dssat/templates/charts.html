@@ -104,33 +104,25 @@ abbr:hover::after {
 
 
                 </div>
-                <h4>Select parameters</h4>
+
+                <h4 class="mt-2">Management parameters</h4>
 
                                      <div>
-                        <label for="startDate">Planting date <abbr data-title="The date the crop was or will be planted. Some values should not be allowed so that users don’t select dates that are not available in the database."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
+                        <label for="startDate">Planting date <abbr data-title="The date the crop was or will be planted."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
                         <input id="startDate" class="form-control" type="date"/>
                     </div>
 
                     <label for="cultivar">Cultivar <abbr data-title="Crop variety."> <i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
                     <select id="cultivar" class="form-select">
                     </select>
-
-{#                    <div>#}
-{#                            <label for="nitro_dap"> Dap: </label><select class="form-select" multiple id="nitro_dap">#}
-{##}
-{#                            </select>#}
-{#                            <label for="selected_daps">Nitrogen daps selected</label>#}
-{#                            <input type="text" id="selected_daps" disabled class="form-control"  />#}
-{##}
-{#                    </div>#}
 <br>
                     <div>
-                        <h5>Nitrogen Fertilizer</h5>
+                        <p><strong>Nitrogen Fertilizer </strong><abbr data-title=" Nitrogen fertilizer applications. Each application is defined by the application day (days after planting) and the application rate (Kg of Nitrogen per hectare)."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></p>
                             <div class="row">
                                 <div class="col">
                                     <div class="row">
-                                        <label for="customRange1" class="w-50">Nitrogen Daps(kg N/ha): <abbr data-title="Defines with nitrogen rate the nitrogen fertilizer application. It is Day after planting for nitrogen fertilizer application."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
-                                        <label for="customRange2" class="w-50">Rate(kg N/ha): <abbr data-title="Accompanies Nitrogen dap to define the nitrogen application. Nitrogen fertilizer application amount (kg/ha)."><i class="fa fa-info-circle" aria-hidden="true"></i></abbr></label>
+                                        <label for="customRange1" class="w-50">Day of application: </label>
+                                        <label for="customRange2" class="w-50">Nitrogen rate(kg/ha):</label>
                                     </div>
                                     </div>
                             </div>
@@ -146,16 +138,16 @@ abbr:hover::after {
 <br>
 
 
-                        <button class="btn btn-outline-success" onclick="addToBox()">Add to table</button>
+                        <button class="btn btn-outline-success" onclick="addToBox()">Add fertilizer applciation</button>
                     </div>
                 <br>
                 <div>
                       <table class="table table-bordered" id="nitrogen_table">
       <thead>
         <tr>
-          <th>Dap</th>
+          <th>Day</th>
           <th>Rate</th>
-          <th>Actions</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -168,40 +160,41 @@ abbr:hover::after {
 
 
 
-                        <button class="btn btn-success" onclick="generate_charts()">Run</button>
+                        <button class="btn btn-success" onclick="generate_charts()">Run experiment</button>
                 </div>
 
 
                 <div class="col-md-9" style="height: 100%;overflow: scroll">
-                    <h4 class="pt-2">Selected Admin1 region: <span id="adm1"></span></h4>
+
+                    <h4 class="mt-2">Evaluating crop management in <span id="adm1"></span></h4>
+                    <p>
+                        With this tool you can evaluate different crop management strategies in your region. You can try different planting date, cultivar, and fertilizer options. The DSSAT crop model will simulate the maize growth and development considering the management input, and the different soil and weather conditions of the region.
+                    </p>
 
                     <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
-                       <h5> Baseline Chart: </h5>
-<p>This chart shows how the tuned model performs when compared to measured data.
+                       <h5> Baseline Simulation: </h5>
+<p>The baseline simulation shows how the model performs when simulating yield in the previous seasons. The simulated yield is shown in a bar, that bar covers the different yield values that are attainable given the different weather and soil conditions in the region.
 <span id="baseline_desc">{{ desc}}</span></p>
                     <div id="chart" style="height: 500px;text-align: center">Loading baseline chart....</div>
                         </div>
 <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
-    <h5>Dssat Simulated Maize Yield:</h5>
-    <p>This chart shows the possible yield values to be expected in the region (admin1) according to the parameters defined by the user. The range of values considers the variability in weather and soil conditions within that region. Each run or experiment will generate a new bar in the chart.</p>
+    <h5>Simulated Maize Yield:</h5>
+    <p>This chart shows the possible yield values to be expected in the region according to the parameters defined by the user. The bar represents the range of yield values attainable given the defined management options and the different soil and weather conditions in the region. Each time you click run, a new bar is added to the chart, that way you can compare the different management options in consideration.</p>
                     <div id="column_chart"></div>
     </div>
                     <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
                         <h5>Dssat Simulated Maize Yield Anomaly Probability:</h5>
-                        <p>This chart is similar to the above maize yield chart, however it shows a probability instead of absolute values. It shows the probabilities of obtaining yield values in three main categories: lower than normal, higher than normal, or within normal range.</p>
+                        <p>Similar to the previous chart, but it shows a probability instead of absolute values. It shows the probabilities of obtaining yield values in three main categories: lower than normal, higher than normal, or within normal range.</p>
    <div id="anomaly_chart"></div>
 </div>
                     <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
-                        <h5>Water Stress chart:</h5>
-                        <p>This chart shows the average stress experienced by the crop during the different developmental stages as simulated by the model. This chart gives insights on the moments where the crop is experiencing stress due to the lack of water. This can help the user think on possible adaptation strategies.</p>
-                       <div id="stress_chart_water"></div>
+                        <h5>Environmental Stress:</h5>
+                        <p> Each chart shows the average stress experienced by the crop during the different developmental stages as simulated by the model. This chart gives insights on the moments where the crop is experiencing stress due to the lack of resources (water/nitrogen).</p>
+                      <div class="row">
+                       <div class="col-6" id="stress_chart_water"></div>
+                        <div class="col-6" id="stress_chart_nitrogen"></div>
+                          </div>
                         </div>
-                    <div style="border:darkgray 1px solid;border-radius: 10px;padding: 10px;margin-bottom: 30px;">
-                        <h5>Nitrogen Stress chart:</h5>
-                        <p>This chart shows the average stress experienced by the crop during the different developmental stages as simulated by the model. This chart gives insights on the moments where the crop is experiencing stress due to the lack of nitrogen fertilizer. This can help the user think on possible adaptation strategies.</p>
-
-                         <div id="stress_chart_nitrogen"></div>
-                    </div>
                         </div>
                 </div>
 

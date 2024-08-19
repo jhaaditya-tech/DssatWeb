@@ -33,9 +33,9 @@ const objToArray = (obj) => {
         }
 
 function generate_charts() {
-        var val_rate = document.getElementById('customRange2').value;
-    var val_dap = document.getElementById('customRange1').value;
-    if (val_dap && val_rate) {
+    //     var val_rate = document.getElementById('customRange2').value;
+    // var val_dap = document.getElementById('customRange1').value;
+    // if (val_dap && val_rate) {
         var planting_date;
         var daps = [];
         var rate = [];
@@ -73,54 +73,59 @@ function generate_charts() {
 
         var xhr = ajax_call('run-experiment/', json_data);
         xhr.done(function (data) {
+
             console.log(data);
-
-            //
-            // var s = data.range_chart.series;
-            // var series = [];
-            //
-            // for (var i = 0; i < s.length; i++) {
-            //     var d = [];
-            //     if(s[i].length>1) {
-            //         console.log('iin if')
-            //         for (var j = 0; j < s[i].length; j++) {
-            //             d.push([s[i][j].data[0]['low'], s[i][j].data[0]['high']])
-            //
-            //         }
-            //          s[i].data=[d];
-            //     }
-            //     else {
-            //         d = [s[i].data[0]['low'], s[i].data[0]['high']]
-            //         s[i].data = [d];
-            //     }
-            //     series.push(s[i])
-            // }
-            //
-            // console.log(series)
-
-
-            column_chart.update({
-                xAxis: data.range_chart.xAxis,
-                yAxis: data.range_chart.yAxis,
-                series: data.range_chart.series,
-            });
+if(data.error.length===0) {
+    //
+    // var s = data.range_chart.series;
+    // var series = [];
+    //
+    // for (var i = 0; i < s.length; i++) {
+    //     var d = [];
+    //     if(s[i].length>1) {
+    //         console.log('iin if')
+    //         for (var j = 0; j < s[i].length; j++) {
+    //             d.push([s[i][j].data[0]['low'], s[i][j].data[0]['high']])
+    //
+    //         }
+    //          s[i].data=[d];
+    //     }
+    //     else {
+    //         d = [s[i].data[0]['low'], s[i].data[0]['high']]
+    //         s[i].data = [d];
+    //     }
+    //     series.push(s[i])
+    // }
+    //
+    // console.log(series)
 
 
-            anomaly_chart.update({
-                xAxis: data.anomaly_chart.xAxis,
-                yAxis: data.anomaly_chart.yAxis,
+    column_chart.update({
+        xAxis: data.range_chart.xAxis,
+        yAxis: data.range_chart.yAxis,
+        series: data.range_chart.series,
+    });
 
-                series: data.anomaly_chart.series,
-            });
-            nitro_chart.addSeries(data.stress_chart_nitrogen, true);
-            water_chart.addSeries(data.stress_chart_water, true);
+
+    anomaly_chart.update({
+        xAxis: data.anomaly_chart.xAxis,
+        yAxis: data.anomaly_chart.yAxis,
+
+        series: data.anomaly_chart.series,
+    });
+    nitro_chart.addSeries(data.stress_chart_nitrogen, true);
+    water_chart.addSeries(data.stress_chart_water, true);
+}
+else {
+    alert('Error: '+data.error+'\n'+'Please make sure you select a planting date.')
+}
 
         });
 
-    }
-    else{
-        alert('Please select all parameters in order to generate charts')
-    }
+    // }
+    // else{
+    //     alert('Please select all parameters in order to generate charts')
+    // }
 }
 function select_chart(btn){
     console.log(btn.id);
@@ -190,8 +195,7 @@ function addToBox() {
         newCell.appendChild(newText);
         newCell = newRow.insertCell();
         var newButton = document.createElement("button");
-        newButton.innerHTML = 'Delete';
-        newButton.className = 'btn btn-danger';
+        newButton.innerHTML = '<i class="fa fa-remove" style="color:red"></i>';
         // newText = document.createTextNode('Delete');
         newCell.appendChild(newButton);
         newButton.onclick = function () {

@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import pandas
@@ -99,46 +100,51 @@ def about(request):
 
 @csrf_exempt
 def run_experiment(request,admin1):
-    schema = request.POST.get('schema')
-    admin1 = request.POST.get('admin1')
-    session = Session(
-        AdminBase(con, schema, admin1)
-    )
-    session.run_experiment(fakerun=True)
-    new_chart_data_range = get_columnRange_series_data(session)
-    for serie in range_chart["userOptions"]["series"]:
-        if serie.get("data"):
-            print(new_chart_data_range[serie["name"]])
-            data=[new_chart_data_range[serie["name"]]['low'],new_chart_data_range[serie["name"]]['high']]
-            serie["data"] += [data]
+    try:
+        schema = request.POST.get('schema')
+        admin1 = request.POST.get('admin1')
+        session = Session(
+            AdminBase(con, schema, admin1)
+        )
+        session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
+        session.simPars.cultivar=request.POST.get('cultivar')
+        session.run_experiment(fakerun=True)
+        new_chart_data_range = get_columnRange_series_data(session)
+        for serie in range_chart["userOptions"]["series"]:
+            if serie.get("data"):
+                print(new_chart_data_range[serie["name"]])
+                data=[new_chart_data_range[serie["name"]]['low'],new_chart_data_range[serie["name"]]['high']]
+                serie["data"] += [data]
+            else:
+                data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
+                serie["data"] = [data]
+
+        # Add data for anomaly chart
+        new_chart_data_an = get_anomaly_series_data(session)
+
+        for serie in anomaly_chart["userOptions"]["series"]:
+            if serie.get("data"):
+                serie["data"] += [new_chart_data_an[serie["name"]]]
+            else:
+                serie["data"] = [new_chart_data_an[serie["name"]]]
+
+        new_chart_data_water = get_stress_series_data(session, stresstype="water")
+        if not sw["userOptions"].get("series"):
+            new_chart_data_water["name"] = f"Exp 1"
+            sw["userOptions"]["series"] = [new_chart_data_water]
         else:
-            data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
-            serie["data"] = [data]
+            n_exps = len(sw["userOptions"]["series"])
+            new_chart_data_water["name"] = f"Exp {n_exps + 1}"
+            sw["userOptions"]["series"] += [new_chart_data_water]
 
-    # Add data for anomaly chart
-    new_chart_data_an = get_anomaly_series_data(session)
-
-    for serie in anomaly_chart["userOptions"]["series"]:
-        if serie.get("data"):
-            serie["data"] += [new_chart_data_an[serie["name"]]]
+        new_chart_data_nitro = get_stress_series_data(session, stresstype="nitrogen")
+        if not sn["userOptions"].get("series"):
+            new_chart_data_nitro["name"] = f"Exp 1"
+            sn["userOptions"]["series"] = [new_chart_data_nitro]
         else:
-            serie["data"] = [new_chart_data_an[serie["name"]]]
-
-    new_chart_data_water = get_stress_series_data(session, stresstype="water")
-    if not sw["userOptions"].get("series"):
-        new_chart_data_water["name"] = f"Exp 1"
-        sw["userOptions"]["series"] = [new_chart_data_water]
-    else:
-        n_exps = len(sw["userOptions"]["series"])
-        new_chart_data_water["name"] = f"Exp {n_exps + 1}"
-        sw["userOptions"]["series"] += [new_chart_data_water]
-
-    new_chart_data_nitro = get_stress_series_data(session, stresstype="nitrogen")
-    if not sn["userOptions"].get("series"):
-        new_chart_data_nitro["name"] = f"Exp 1"
-        sn["userOptions"]["series"] = [new_chart_data_nitro]
-    else:
-        n_exps = len(sn["userOptions"]["series"])
-        new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
-        sn["userOptions"]["series"] += [new_chart_data_nitro]
-    return JsonResponse({'anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
+            n_exps = len(sn["userOptions"]["series"])
+            new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
+            sn["userOptions"]["series"] += [new_chart_data_nitro]
+        return JsonResponse({'error':'','anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
+    except Exception as e:
+        return JsonResponse({'error': str(e)})

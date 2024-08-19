@@ -108,9 +108,12 @@ def run_experiment(request,admin1):
     new_chart_data_range = get_columnRange_series_data(session)
     for serie in range_chart["userOptions"]["series"]:
         if serie.get("data"):
-            serie["data"] += [new_chart_data_range[serie["name"]]]
+            print(new_chart_data_range[serie["name"]])
+            data=[new_chart_data_range[serie["name"]]['low'],new_chart_data_range[serie["name"]]['high']]
+            serie["data"] += [data]
         else:
-            serie["data"] = [new_chart_data_range[serie["name"]]]
+            data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
+            serie["data"] = [data]
 
     # Add data for anomaly chart
     new_chart_data_an = get_anomaly_series_data(session)

@@ -75,28 +75,28 @@ function generate_charts() {
         xhr.done(function (data) {
             console.log(data);
 
-
-            var s = data.range_chart.series;
-            var series = [];
-
-            for (var i = 0; i < s.length; i++) {
-                var d = [];
-                if(s[i].length>1) {
-                    console.log('iin if')
-                    for (var j = 0; j < s[i].length; j++) {
-                        d.push([s[i][j].data[0]['low'], s[i][j].data[0]['high']])
-
-                    }
-                     s[i].data=[d];
-                }
-                else {
-                    d = [s[i].data[0]['low'], s[i].data[0]['high']]
-                    s[i].data = [d];
-                }
-                series.push(s[i])
-            }
-
-            console.log(series)
+            //
+            // var s = data.range_chart.series;
+            // var series = [];
+            //
+            // for (var i = 0; i < s.length; i++) {
+            //     var d = [];
+            //     if(s[i].length>1) {
+            //         console.log('iin if')
+            //         for (var j = 0; j < s[i].length; j++) {
+            //             d.push([s[i][j].data[0]['low'], s[i][j].data[0]['high']])
+            //
+            //         }
+            //          s[i].data=[d];
+            //     }
+            //     else {
+            //         d = [s[i].data[0]['low'], s[i].data[0]['high']]
+            //         s[i].data = [d];
+            //     }
+            //     series.push(s[i])
+            // }
+            //
+            // console.log(series)
 
 
             column_chart.update({

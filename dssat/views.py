@@ -16,7 +16,7 @@ import geojson
 
 from dssatservice.ui.base import AdminBase, Session
 from dssatservice.ui.plot import init_anomalies_chart, init_stress_chart, get_stress_series_data, \
-    get_anomaly_series_data, get_columnRange_series_data, init_columnRange_chart, clear_yield_chart
+    get_anomaly_series_data, get_columnRange_series_data, init_columnRange_chart, clear_yield_chart, clear_stress_chart
 from dssat.api import  init_columnRange, validation_ch
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,8 +51,7 @@ sw=stress_chart_water.to_dict()
 stress_chart_nitrogen.container = 'stress_chart_nitrogen'
 sn=stress_chart_nitrogen.to_dict()
 
-clear_yield_chart(range_chart)
-clear_yield_chart(anomaly_chart)
+
 
 def get_geojson():
     import pandas as pd
@@ -80,7 +79,10 @@ def home(request,admin1='Nakuru'):
 
 
 def charts(request,admin1='Nakuru_kenya'):
-
+    clear_yield_chart(range_chart)
+    clear_stress_chart(sw)
+    clear_stress_chart(sn)
+    clear_yield_chart(anomaly_chart)
     admin1_name=admin1.split('_')[0]
     admin1_country= admin1.split('_')[1]
     desc,column,cultivars,x= validation_ch(request, admin1)
@@ -106,12 +108,8 @@ def run_experiment(request,admin1):
     new_chart_data_range = get_columnRange_series_data(session)
     for serie in range_chart["userOptions"]["series"]:
         if serie.get("data"):
-            print('in if')
-            print(serie.get("data"))
             serie["data"] += [new_chart_data_range[serie["name"]]]
         else:
-            print('in else')
-            print(serie.get("data"))
             serie["data"] = [new_chart_data_range[serie["name"]]]
 
     # Add data for anomaly chart
@@ -140,4 +138,4 @@ def run_experiment(request,admin1):
         n_exps = len(sn["userOptions"]["series"])
         new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
         sn["userOptions"]["series"] += [new_chart_data_nitro]
-    return JsonResponse({'anomaly_chart': anomaly_chart["userOptions"],'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
+    return JsonResponse({'anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})

@@ -112,7 +112,6 @@ function generate_charts() {
 
                 series: data.anomaly_chart.series,
             });
-
             nitro_chart.addSeries(data.stress_chart_nitrogen, true);
             water_chart.addSeries(data.stress_chart_water, true);
 

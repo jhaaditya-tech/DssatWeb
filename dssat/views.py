@@ -87,7 +87,6 @@ def charts(request,admin1='Nakuru_kenya'):
     admin1_name=admin1.split('_')[0]
     admin1_country= admin1.split('_')[1]
     desc,column,cultivars,x= validation_ch(request, admin1)
-    print("dfdf")
     global session
     session = Session(
         AdminBase(con, admin1_country, admin1_name)
@@ -109,9 +108,6 @@ def run_experiment(request,admin1):
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
         global session
-        session = Session(
-            AdminBase(con, schema, admin1)
-        )
         session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
         session.simPars.cultivar=request.POST.get('cultivar')
         session.run_experiment(fakerun=True)

@@ -36,11 +36,12 @@ def connect(dbname):
 
 
 con = connect(config['USERNAME'])
-sess = Session(
+session = Session(
     AdminBase(con, 'kenya', 'Nakuru')
 )
+
 anom_chart = init_anomalies_chart()
-r_chart = init_columnRange_chart(sess)
+r_chart = init_columnRange_chart(session)
 anom_chart.container = 'anomaly_chart'
 r_chart.container = 'column_chart'
 range_chart = r_chart.to_dict()
@@ -48,10 +49,9 @@ anomaly_chart = anom_chart.to_dict()
 stress_chart_water = init_stress_chart('water')
 stress_chart_water.container = 'stress_chart_water'
 stress_chart_nitrogen = init_stress_chart('nitrogen')
-sw=stress_chart_water.to_dict()
+sw = stress_chart_water.to_dict()
 stress_chart_nitrogen.container = 'stress_chart_nitrogen'
-sn=stress_chart_nitrogen.to_dict()
-
+sn = stress_chart_nitrogen.to_dict()
 
 
 def get_geojson():
@@ -87,6 +87,11 @@ def charts(request,admin1='Nakuru_kenya'):
     admin1_name=admin1.split('_')[0]
     admin1_country= admin1.split('_')[1]
     desc,column,cultivars,x= validation_ch(request, admin1)
+    print("dfdf")
+    global session
+    session = Session(
+        AdminBase(con, admin1_country, admin1_name)
+    )
     sFile = open(config['PATH_TO_KENYA'], "rb")
     # gdf = gpd.read_file(config['PATH_TO_KENYA'])
     gdf = gpd.read_file(sFile)
@@ -103,6 +108,7 @@ def run_experiment(request,admin1):
     try:
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
+        global session
         session = Session(
             AdminBase(con, schema, admin1)
         )

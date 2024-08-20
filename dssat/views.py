@@ -36,22 +36,15 @@ def connect(dbname):
 
 
 con = connect(config['USERNAME'])
-session = Session(
-    AdminBase(con, 'kenya', 'Nakuru')
-)
-
-anom_chart = init_anomalies_chart()
-r_chart = init_columnRange_chart(session)
-anom_chart.container = 'anomaly_chart'
-r_chart.container = 'column_chart'
-range_chart = r_chart.to_dict()
-anomaly_chart = anom_chart.to_dict()
-stress_chart_water = init_stress_chart('water')
-stress_chart_water.container = 'stress_chart_water'
-stress_chart_nitrogen = init_stress_chart('nitrogen')
-sw = stress_chart_water.to_dict()
-stress_chart_nitrogen.container = 'stress_chart_nitrogen'
-sn = stress_chart_nitrogen.to_dict()
+session = None
+anom_chart =None
+r_chart = None
+stress_chart_water = None
+stress_chart_nitrogen = None
+range_chart = None
+sw = None
+anomaly_chart = None
+sn = None
 
 
 def get_geojson():
@@ -80,17 +73,37 @@ def home(request,admin1='Nakuru'):
 
 
 def charts(request,admin1='Nakuru_kenya'):
-    clear_yield_chart(range_chart)
-    clear_stress_chart(sw)
-    clear_stress_chart(sn)
-    clear_yield_chart(anomaly_chart)
-    admin1_name=admin1.split('_')[0]
-    admin1_country= admin1.split('_')[1]
-    desc,column,cultivars,x= validation_ch(request, admin1)
+    admin1_name = admin1.split('_')[0]
+    admin1_country = admin1.split('_')[1]
     global session
-    session = Session(
-        AdminBase(con, admin1_country, admin1_name)
-    )
+    session=Session( AdminBase(con, admin1_country, admin1_name))
+    print(session)
+    global anom_chart
+    anom_chart = init_anomalies_chart()
+    global r_chart
+    r_chart = init_columnRange_chart(session)
+    global stress_chart_water
+    stress_chart_water = init_stress_chart('water')
+    global stress_chart_nitrogen
+    stress_chart_nitrogen = init_stress_chart('nitrogen')
+    stress_chart_water.container = 'stress_chart_water'
+    stress_chart_nitrogen.container = 'stress_chart_nitrogen'
+    anom_chart.container = 'anomaly_chart'
+    r_chart.container = 'column_chart'
+    global range_chart
+    range_chart = r_chart.to_dict()
+    global sw
+    sw = stress_chart_water.to_dict()
+    global anomaly_chart
+    anomaly_chart = anom_chart.to_dict()
+    global sn
+    sn = stress_chart_nitrogen.to_dict()
+    # clear_yield_chart(range_chart)
+    # clear_stress_chart(sw)
+    # clear_stress_chart(sn)
+    # clear_yield_chart(anomaly_chart)
+
+    desc,column,cultivars,x= validation_ch(request, admin1)
     sFile = open(config['PATH_TO_KENYA'], "rb")
     # gdf = gpd.read_file(config['PATH_TO_KENYA'])
     gdf = gpd.read_file(sFile)
@@ -105,48 +118,52 @@ def about(request):
 @csrf_exempt
 def run_experiment(request,admin1):
     try:
+
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
-        global session
-        session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
-        session.simPars.cultivar=request.POST.get('cultivar')
-        session.run_experiment(fakerun=True)
-        new_chart_data_range = get_columnRange_series_data(session)
-        for serie in range_chart["userOptions"]["series"]:
-            if serie.get("data"):
-                data=[new_chart_data_range[serie["name"]]['low'],new_chart_data_range[serie["name"]]['high']]
-                serie["data"] += [data]
+        if session is not None:
+            print(session)
+            session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
+            session.simPars.cultivar=request.POST.get('cultivar')
+            session.run_experiment(fakerun=True)
+            new_chart_data_range = get_columnRange_series_data(session)
+            for serie in range_chart["userOptions"]["series"]:
+                if serie.get("data"):
+                    data=[new_chart_data_range[serie["name"]]['low'],new_chart_data_range[serie["name"]]['high']]
+                    serie["data"] += [data]
+                else:
+                    data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
+                    serie["data"] = [data]
+
+            # Add data for anomaly chart
+            new_chart_data_an = get_anomaly_series_data(session)
+
+            for serie in anomaly_chart["userOptions"]["series"]:
+                if serie.get("data"):
+                    serie["data"] += [new_chart_data_an[serie["name"]]]
+                else:
+                    serie["data"] = [new_chart_data_an[serie["name"]]]
+
+            new_chart_data_water = get_stress_series_data(session, stresstype="water")
+            if not sw["userOptions"].get("series"):
+                new_chart_data_water["name"] = f"Exp 1"
+                sw["userOptions"]["series"] = [new_chart_data_water]
             else:
-                data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
-                serie["data"] = [data]
+                n_exps = len(sw["userOptions"]["series"])
+                new_chart_data_water["name"] = f"Exp {n_exps + 1}"
+                sw["userOptions"]["series"] += [new_chart_data_water]
 
-        # Add data for anomaly chart
-        new_chart_data_an = get_anomaly_series_data(session)
-
-        for serie in anomaly_chart["userOptions"]["series"]:
-            if serie.get("data"):
-                serie["data"] += [new_chart_data_an[serie["name"]]]
+            new_chart_data_nitro = get_stress_series_data(session, stresstype="nitrogen")
+            if not sn["userOptions"].get("series"):
+                new_chart_data_nitro["name"] = f"Exp 1"
+                sn["userOptions"]["series"] = [new_chart_data_nitro]
             else:
-                serie["data"] = [new_chart_data_an[serie["name"]]]
-
-        new_chart_data_water = get_stress_series_data(session, stresstype="water")
-        if not sw["userOptions"].get("series"):
-            new_chart_data_water["name"] = f"Exp 1"
-            sw["userOptions"]["series"] = [new_chart_data_water]
+                n_exps = len(sn["userOptions"]["series"])
+                new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
+                sn["userOptions"]["series"] += [new_chart_data_nitro]
+            return JsonResponse({'error':'','anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
         else:
-            n_exps = len(sw["userOptions"]["series"])
-            new_chart_data_water["name"] = f"Exp {n_exps + 1}"
-            sw["userOptions"]["series"] += [new_chart_data_water]
-
-        new_chart_data_nitro = get_stress_series_data(session, stresstype="nitrogen")
-        if not sn["userOptions"].get("series"):
-            new_chart_data_nitro["name"] = f"Exp 1"
-            sn["userOptions"]["series"] = [new_chart_data_nitro]
-        else:
-            n_exps = len(sn["userOptions"]["series"])
-            new_chart_data_nitro["name"] = f"Exp {n_exps + 1}"
-            sn["userOptions"]["series"] += [new_chart_data_nitro]
-        return JsonResponse({'error':'','anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
+            print('session is None')
     except Exception as e:
         return JsonResponse({'error': str(e)})
 @csrf_exempt
@@ -156,9 +173,6 @@ def clear_charts(request,admin1):
         clear_stress_chart(sw)
         clear_stress_chart(sn)
         clear_yield_chart(anomaly_chart)
-        global session
-        session=None
-        print(sn["userOptions"]["series"])
         return JsonResponse({'error': '', 'anomaly_chart': anomaly_chart["userOptions"],
                              'range_chart': range_chart["userOptions"],
                              'stress_chart_water': sw['userOptions'], 'stress_chart_nitrogen':sn["userOptions"]["series"]})

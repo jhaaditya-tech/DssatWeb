@@ -36,10 +36,10 @@ def connect(dbname):
 
 
 con = connect(config['USERNAME'])
-anom_chart = init_anomalies_chart()
 sess = Session(
     AdminBase(con, 'kenya', 'Nakuru')
 )
+anom_chart = init_anomalies_chart()
 r_chart = init_columnRange_chart(sess)
 anom_chart.container = 'anomaly_chart'
 r_chart.container = 'column_chart'
@@ -112,7 +112,6 @@ def run_experiment(request,admin1):
         new_chart_data_range = get_columnRange_series_data(session)
         for serie in range_chart["userOptions"]["series"]:
             if serie.get("data"):
-                print(new_chart_data_range[serie["name"]])
                 data=[new_chart_data_range[serie["name"]]['low'],new_chart_data_range[serie["name"]]['high']]
                 serie["data"] += [data]
             else:
@@ -147,4 +146,19 @@ def run_experiment(request,admin1):
             sn["userOptions"]["series"] += [new_chart_data_nitro]
         return JsonResponse({'error':'','anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
     except Exception as e:
+        return JsonResponse({'error': str(e)})
+@csrf_exempt
+def clear_charts(request,admin1):
+    try:
+        clear_yield_chart(range_chart)
+        clear_stress_chart(sw)
+        clear_stress_chart(sn)
+        clear_yield_chart(anomaly_chart)
+        print(sn["userOptions"]["series"])
+        return JsonResponse({'error': '', 'anomaly_chart': anomaly_chart["userOptions"],
+                             'range_chart': range_chart["userOptions"],
+                             'stress_chart_water': sw['userOptions'], 'stress_chart_nitrogen':sn["userOptions"]["series"]})
+
+    except Exception as e:
+        print(str(e))
         return JsonResponse({'error': str(e)})

@@ -207,3 +207,65 @@ function addToBox() {
 
 }
 
+function clear_charts() {
+    var index = $("#stress_chart_water").data('highchartsChart');
+    var water_chart = Highcharts.charts[index];
+    index = $("#stress_chart_nitrogen").data('highchartsChart');
+    var nitro_chart = Highcharts.charts[index];
+    index = $("#column_chart").data('highchartsChart');
+    var column_chart = Highcharts.charts[index];
+    index = $("#anomaly_chart").data('highchartsChart');
+    var anomaly_chart = Highcharts.charts[index];
+    var xhr = ajax_call('clear-charts/', {});
+    xhr.done(function (data) {
+        console.log(data);
+        if (data.error.length === 0) {
+                //
+    // var s = data.range_chart.series;
+    // var series = [];
+    //
+    // for (var i = 0; i < s.length; i++) {
+    //     var d = [];
+    //     if(s[i].length>1) {
+    //         console.log('iin if')
+    //         for (var j = 0; j < s[i].length; j++) {
+    //             d.push([s[i][j].data[0]['low'], s[i][j].data[0]['high']])
+    //
+    //         }
+    //          s[i].data=[d];
+    //     }
+    //     else {
+    //         d = [s[i].data[0]['low'], s[i].data[0]['high']]
+    //         s[i].data = [d];
+    //     }
+    //     series.push(s[i])
+    // }
+    //
+    // console.log(series)
+
+
+    column_chart.update({
+        xAxis: data.range_chart.xAxis,
+        yAxis: data.range_chart.yAxis,
+        series: data.range_chart.series,
+    });
+
+
+    anomaly_chart.update({
+        xAxis: data.anomaly_chart.xAxis,
+        yAxis: data.anomaly_chart.yAxis,
+
+        series: data.anomaly_chart.series,
+    });
+ while (nitro_chart.series.length) {
+     nitro_chart.series[0].remove();
+ }
+  while (water_chart.series.length) {
+     water_chart.series[0].remove();
+ }
+        } else {
+            alert('There is an issue clearing charts.')
+        }
+
+    });
+}

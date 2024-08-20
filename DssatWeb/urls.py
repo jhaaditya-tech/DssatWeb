@@ -17,13 +17,15 @@ from django.contrib import admin
 
 from dssat.api import regions_geojson
 from dssat.views import run_experiment
-from dssat.views import home, charts, about
+from dssat.views import home, charts, about,clear_charts
 from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',home,name='home'),
     # path('run-spatial-dssat/',run_spatial_dssat,name='run-spatial-dssat'),
+    path('charts/<str:admin1>/clear-charts/', clear_charts, name='clear-charts'),
+
     path('charts/<str:admin1>/',charts,name='charts'),
     path('charts/validation-chart/<str:admin1>/',home,name='validation-chart'),
     # path('charts/<str:admin1>/baseline-chart/',baseline,name='baseline-chart'),

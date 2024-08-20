@@ -128,10 +128,10 @@ abbr:hover::after {
                             </div>
                             <div class="row">
                                 <div class="col">
-                                <input type="number"  class="w-75 form-control" id="customRange1"/>
+                                <input type="number"  class="w-75 form-control" id="customRange1" min="0" max="200"/>
                                 </div>
                                 <div class="col">
-                                 <input type="number" id="customRange2" class="w-75 form-control"/>
+                                 <input type="number" id="customRange2" class="w-75 form-control" min="0" max="999"/>
                                 </div>
                             </div>
                         </div>
@@ -147,7 +147,7 @@ abbr:hover::after {
         <tr>
           <th>Day</th>
           <th>Rate</th>
-          <th>Delete</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -160,7 +160,8 @@ abbr:hover::after {
 
 
 
-                        <button class="btn btn-success" onclick="generate_charts()">Run experiment</button>
+                        <button class="btn btn-success w-50" onclick="generate_charts()">Run experiment</button><br>
+               <button class="btn btn-danger mt-1 w-50" onclick="clear_charts()">Clear charts</button>
                 </div>
 
 

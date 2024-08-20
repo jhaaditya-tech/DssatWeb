@@ -120,9 +120,7 @@ def run_experiment(request,admin1):
 
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
-        global session
         if session is not None:
-            print(session)
             session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
             session.simPars.cultivar=request.POST.get('cultivar')
             session.run_experiment(fakerun=True)

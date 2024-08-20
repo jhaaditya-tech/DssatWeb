@@ -71,7 +71,7 @@ def home(request,admin1='Nakuru'):
     return render(request, 'index.html', {
                                            'data': data })
 
-
+@csrf_exempt
 def charts(request,admin1='Nakuru_kenya'):
     admin1_name = admin1.split('_')[0]
     admin1_country = admin1.split('_')[1]

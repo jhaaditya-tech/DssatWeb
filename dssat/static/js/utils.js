@@ -117,7 +117,7 @@ if(data.error.length===0) {
     water_chart.addSeries(data.stress_chart_water, true);
 }
 else {
-    alert('Error: '+data.error+'\n'+'Please make sure you select a planting date.')
+    alert('Error: '+data.error)
 }
 
         });

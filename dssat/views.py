@@ -163,7 +163,7 @@ def run_experiment(request,admin1):
                 sn["userOptions"]["series"] += [new_chart_data_nitro]
             return JsonResponse({'error':'','anomaly_chart': anomaly_chart["userOptions"],'aseries':new_chart_data_an,'rdata':new_chart_data_range,'range_chart':range_chart["userOptions"],'stress_chart_water': new_chart_data_water,'stress_chart_nitrogen':new_chart_data_nitro})
         else:
-            print('session is None')
+            return JsonResponse({'error':'no session'})
     except Exception as e:
         return JsonResponse({'error': str(e)})
 @csrf_exempt

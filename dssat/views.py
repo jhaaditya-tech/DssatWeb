@@ -77,7 +77,6 @@ def charts(request,admin1='Nakuru_kenya'):
     admin1_country = admin1.split('_')[1]
     global session
     session=Session( AdminBase(con, admin1_country, admin1_name))
-    print(session)
     global anom_chart
     anom_chart = init_anomalies_chart()
     global r_chart
@@ -121,6 +120,7 @@ def run_experiment(request,admin1):
 
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
+        global session
         if session is not None:
             print(session)
             session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')

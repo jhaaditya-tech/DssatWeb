@@ -117,7 +117,7 @@ def about(request):
 @csrf_exempt
 def run_experiment(request,admin1):
     try:
-
+        global session
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
         if session is not None:

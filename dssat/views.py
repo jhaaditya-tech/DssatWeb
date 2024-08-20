@@ -160,6 +160,8 @@ def clear_charts(request,admin1):
         clear_stress_chart(sw)
         clear_stress_chart(sn)
         clear_yield_chart(anomaly_chart)
+        global session
+        session=None
         print(sn["userOptions"]["series"])
         return JsonResponse({'error': '', 'anomaly_chart': anomaly_chart["userOptions"],
                              'range_chart': range_chart["userOptions"],

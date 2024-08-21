@@ -61,7 +61,7 @@ function whenClicked_region(e){
             var admin1 = e.target.feature.properties.admin1;
         console.log(admin1);
 
-        var country = e.target.feature.properties.adm0_en;
+        var country = e.target.feature.properties.admin1;
         console.log(e.target.feature.properties);
             var str=[admin1,country.toLowerCase().toString()].join('_');
     console.log(str)

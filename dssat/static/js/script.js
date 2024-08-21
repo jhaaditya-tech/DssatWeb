@@ -1,4 +1,5 @@
 var map = L.map('map');
+var gcountry='';
 var adm1='';
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -48,6 +49,7 @@ function zoomToRegions(schema){
 }
 function whenClicked(e) {
             var country = e.target.feature.properties.country;
+            gcountry=country;
               map.fitBounds(e.target.getBounds());
     zoomToRegions(country)
 
@@ -61,9 +63,9 @@ function whenClicked_region(e){
             var admin1 = e.target.feature.properties.admin1;
         console.log(admin1);
 
-        var country = e.target.feature.properties.admin1;
+        // var country = e.target.feature.properties.adm0_en;
         console.log(e.target.feature.properties);
-            var str=[admin1,country.toLowerCase().toString()].join('_');
+            var str=[admin1,gcountry.toLowerCase().toString()].join('_');
     console.log(str)
         str="'"+str+"'";
     var popup = L.popup();

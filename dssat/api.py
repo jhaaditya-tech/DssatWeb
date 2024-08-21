@@ -80,7 +80,7 @@ def regions_geojson(request):
             'type',       'Feature',
             'admin1',         admin1,
             'gid',gid,
-                'country',adm0_en,
+                'country',admin1,
             'geometry',   ST_AsGeoJSON(geom)::jsonb,
             'properties', to_jsonb(inputs) - 'gid' - 'geom'
           ) AS feature

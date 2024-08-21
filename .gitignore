@@ -12,3 +12,4 @@
 
 # Ignore static files directory
 static/
+db.sqlite3

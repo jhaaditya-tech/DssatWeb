@@ -35,7 +35,7 @@ def connect(dbname):
     return con
 
 
-con = connect(config['USERNAME'])
+
 session = None
 anom_chart =None
 r_chart = None
@@ -75,12 +75,17 @@ def home(request,admin1='Nakuru'):
 def charts(request,admin1='Nakuru_kenya'):
     admin1_name = admin1.split('_')[0]
     admin1_country = admin1.split('_')[1]
+    # global session
+    print("here")
+    import pickle
+    con = connect(config['USERNAME'])
     global session
-    session=Session( AdminBase(con, admin1_country, admin1_name))
+    session=Session(AdminBase(con, admin1_country, admin1_name))
     global anom_chart
     anom_chart = init_anomalies_chart()
     global r_chart
     r_chart = init_columnRange_chart(session)
+    print('jjjj')
     global stress_chart_water
     stress_chart_water = init_stress_chart('water')
     global stress_chart_nitrogen
@@ -117,9 +122,9 @@ def about(request):
 @csrf_exempt
 def run_experiment(request,admin1):
     try:
-        global session
         schema = request.POST.get('schema')
         admin1 = request.POST.get('admin1')
+        global session
         if session is not None:
             session.simPars.planting_date=datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
             session.simPars.cultivar=request.POST.get('cultivar')

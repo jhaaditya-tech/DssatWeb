@@ -160,16 +160,18 @@ def run_experiment(request, admin1):
         # Update session parameters
         session.simPars.planting_date = datetime.strptime(request.POST.get('planting_date'), '%Y-%m-%d')
         session.simPars.cultivar = request.POST.get('cultivar')
+        session.simPars.nitrogen_rate = [int(i) for i in  request.POST.getlist('nitrogen_rate[]')]
+        session.simPars.nitrogen_dap = [int(i) for i in request.POST.getlist('nitrogen_dap[]')]
         session.run_experiment(fakerun=True)
 
         # Update charts with new data
         new_chart_data_range = get_columnRange_series_data(session)
         for serie in range_chart["userOptions"]["series"]:
             if serie.get("data"):
-                data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
+                data = [new_chart_data_range[serie["name"]]['name'],new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
                 serie["data"] += [data]
             else:
-                data = [new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
+                data = [new_chart_data_range[serie["name"]]['name'],new_chart_data_range[serie["name"]]['low'], new_chart_data_range[serie["name"]]['high']]
                 serie["data"] = [data]
 
         new_chart_data_an = get_anomaly_series_data(session)

@@ -3,7 +3,7 @@ function get_daps(){
     var daps=[];
     let tbl = document.getElementById("nitrogen_table").getElementsByTagName('tbody')[0];
     for(var i=0;i<tbl.rows.length;i++) {
-        daps.push(tbl.rows[i].cells[0].innerText);
+        daps.push(parseInt(tbl.rows[i].cells[0].innerText));
     }
 return daps;
 }
@@ -13,7 +13,7 @@ function get_rates(){
     for(var i=0;i<tbl.rows.length;i++) {
 
 
-        rates.push(tbl.rows[i].cells[1].innerText);
+        rates.push(parseInt(tbl.rows[i].cells[1].innerText));
     }
 return rates;
 }

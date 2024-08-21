@@ -223,6 +223,23 @@ def about(request):
 @csrf_exempt
 def clear_charts(request, admin1):
     try:
+        session = get_session(request)
+
+        anom_chart = init_anomalies_chart()
+        r_chart = init_columnRange_chart(session)
+        stress_chart_water = init_stress_chart('water')
+        stress_chart_nitrogen = init_stress_chart('nitrogen')
+        # Set containers
+        stress_chart_water.container = 'stress_chart_water'
+        stress_chart_nitrogen.container = 'stress_chart_nitrogen'
+        anom_chart.container = 'anomaly_chart'
+        r_chart.container = 'column_chart'
+
+        # Convert charts to dictionary format and store in session
+        request.session['range_chart'] = r_chart.to_dict()
+        request.session['sw'] = stress_chart_water.to_dict()
+        request.session['anomaly_chart'] = anom_chart.to_dict()
+        request.session['sn'] = stress_chart_nitrogen.to_dict()
         clear_yield_chart(request.session['range_chart'] )
         clear_stress_chart(request.session['sw'])
         clear_stress_chart(request.session['sn'])

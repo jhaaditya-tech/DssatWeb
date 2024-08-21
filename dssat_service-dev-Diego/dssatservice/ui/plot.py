@@ -268,7 +268,7 @@ def init_stress_chart(stress_type):
                 "font-size": "15px",
             }
         },
-        "max": 100
+        # "max": 100
     }
     my_chart.options.x_axis = {
         "title": {

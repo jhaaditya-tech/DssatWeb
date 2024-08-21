@@ -195,6 +195,13 @@ function addToBox() {
         newCell.appendChild(newText);
         newCell = newRow.insertCell();
         var newButton = document.createElement("button");
+        newButton.style='background: none;\n' +
+            '\tcolor: inherit;\n' +
+            '\tborder: none;\n' +
+            '\tpadding: 0;\n' +
+            '\tfont: inherit;\n' +
+            '\tcursor: pointer;\n' +
+            '\toutline: inherit;';
         newButton.innerHTML = '<i class="fa fa-remove" style="color:red"></i>';
         // newText = document.createTextNode('Delete');
         newCell.appendChild(newButton);

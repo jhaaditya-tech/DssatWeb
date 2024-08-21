@@ -6,6 +6,7 @@
 /DiegoCode.ipynb
 /dssat/.ipynb_checkpoints
 /dssat/__pycache__
+.idea/
 # Ignore compiled Python files
 *.pyc
 

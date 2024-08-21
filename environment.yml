@@ -8,6 +8,7 @@ dependencies:
   - gdal
   - tqdm
   - netcdf4
+  - scikit-learn
   - gunicorn
   - pip
   - pip:

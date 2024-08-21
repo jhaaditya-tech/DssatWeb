@@ -223,18 +223,20 @@ def about(request):
 @csrf_exempt
 def clear_charts(request, admin1):
     try:
-        user_session = get_user_session(request)
-        clear_yield_chart(user_session['range_chart'])
-        clear_stress_chart(user_session['sw'])
-        clear_stress_chart(user_session['sn'])
-        clear_yield_chart(user_session['anomaly_chart'])
+        clear_yield_chart(request.session['range_chart'] )
+        clear_stress_chart(request.session['sw'])
+        clear_stress_chart(request.session['sn'])
+        clear_yield_chart(request.session['anomaly_chart'])
+
+
 
         return JsonResponse({
             'error': '',
-            'anomaly_chart': user_session['anomaly_chart']["userOptions"],
-            'range_chart': user_session['range_chart']["userOptions"],
-            'stress_chart_water': user_session['sw']['userOptions'],
-            'stress_chart_nitrogen': user_session['sn']["userOptions"]["series"]
+            'anomaly_chart': request.session['anomaly_chart']["userOptions"],
+            'range_chart': request.session['range_chart']["userOptions"],
+            'stress_chart_water': request.session['sw']['userOptions'],
+            'stress_chart_nitrogen': request.session['sn']["userOptions"]["series"]
         })
     except Exception as e:
         return JsonResponse({'error': str(e)})
+

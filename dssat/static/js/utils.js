@@ -1,4 +1,9 @@
 var gc;
+//
+// if(document.getElementById("spinner_button")){
+//              document.getElementById("spinner_button").style.display = "none";
+//
+// }
 function get_daps(){
     var daps=[];
     let tbl = document.getElementById("nitrogen_table").getElementsByTagName('tbody')[0];
@@ -33,6 +38,8 @@ const objToArray = (obj) => {
         }
 
 function generate_charts() {
+    document.getElementById("spinner_button").style.display = "block";
+    document.getElementById("blur_div").style.display = "block";
     //     var val_rate = document.getElementById('customRange2').value;
     // var val_dap = document.getElementById('customRange1').value;
     // if (val_dap && val_rate) {
@@ -50,6 +57,10 @@ function generate_charts() {
         console.log(cultivar);
         console.log(daps);
         console.log(rate);
+        if(daps.length===0)
+            daps=[0]
+        if(rate.length===0)
+            rate=[0]
         var index = $("#stress_chart_water").data('highchartsChart');
         var water_chart = Highcharts.charts[index];
         index = $("#stress_chart_nitrogen").data('highchartsChart');
@@ -115,6 +126,8 @@ if(data.error.length===0) {
     });
     nitro_chart.addSeries(data.stress_chart_nitrogen, true);
     water_chart.addSeries(data.stress_chart_water, true);
+         document.getElementById("spinner_button").style.display = "none";
+    document.getElementById("blur_div").style.display = "none";
 }
 else {
     alert('Error: '+data.error)

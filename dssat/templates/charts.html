@@ -86,7 +86,23 @@ abbr:hover::after {
   </div>
 </nav>
 <div class="container-fluid" style="height: calc(100% - 70px)">
+    <div id="blur_div" style="position: absolute;
+    height: calc(100% - 70px);
+    width: 100%;
+    background: #ffffffa6;
+    overflow: hidden;
+    display: none;
+    /* z-index: 999; */
+    z-index: 500;"></div>
+      <button class="btn btn-success" type="button" disabled id="spinner_button" style="position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 999;display: none">
+  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+  Loading...
+</button>
     <div class="row h-100">
+     
         <div class="col-md-3 h-100 bg-secondary-subtle">
             <div>
                 <div class="form-check d-none">

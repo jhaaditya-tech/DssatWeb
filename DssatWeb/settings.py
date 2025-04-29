@@ -11,11 +11,18 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import json
 from pathlib import Path
+import os
+
+import sys
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 f = open(str(BASE_DIR) + '/data.json', )
 data = json.load(f)
+
+sys.path.append(os.path.join(BASE_DIR, 'dssatservice-main'))
+sys.path.append(os.path.join(BASE_DIR, 'spatialDSSAT-main'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -24,7 +31,7 @@ data = json.load(f)
 SECRET_KEY =  data["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEBUG' in data
+DEBUG = data["DEBUG"]
 
 ALLOWED_HOSTS = data["ALLOWED_HOSTS"]
 
